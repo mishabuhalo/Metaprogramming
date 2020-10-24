@@ -8,10 +8,12 @@ namespace CSSFormater
     {
         public TokenTypes TokenType { get; set; }
         public string TokenValue { get; set; }
+        public int LineNumber { get; set; }
+        public int StartCharacterNumber { get; set; }
 
         public override string ToString()
         {
-            return $"\"{TokenType.ToString("g")}\": \"{TokenValue}\"";
+            return $"\"{TokenType.ToString("g")}\": \"{TokenValue}\", line number: {LineNumber}, start character number: {StartCharacterNumber}";
         }
     }
 

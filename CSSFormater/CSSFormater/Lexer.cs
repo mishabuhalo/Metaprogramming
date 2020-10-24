@@ -98,7 +98,7 @@ namespace CSSFormater
         {
             var currentCharacter = this.CurrentCharacter;
 
-            if (currentCharacter == '-' || currentCharacter == '.' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
+            if (currentCharacter=='-' || currentCharacter =='.' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
             {
                 NumberHandling();
                 return;
@@ -145,7 +145,7 @@ namespace CSSFormater
                 return;
             }
 
-            CreateAndAddToken(currentCharacter.ToString(), TokenTypes.ErrorToken);
+            CreateAndAddToken(currentCharacter.ToString(), TokenTypes.ErrorToken, this.CurrentLineNumber, this.CurrentCharacterNumber);
             this.NextCharacter();
         }
 
@@ -153,8 +153,10 @@ namespace CSSFormater
         {
             var lexer = this;
             var currentCharacter = lexer.CurrentCharacter;
+            var CurrentLineNumber = lexer.CurrentLineNumber;
+            var startCharacterIndex = lexer.CurrentCharacterNumber;
             var token = currentCharacter.ToString();
-            CreateAndAddToken(token, TokenTypes.Bracket);
+            CreateAndAddToken(token, TokenTypes.Bracket, CurrentLineNumber, startCharacterIndex);
             lexer.NextCharacter();
         }
 
@@ -162,24 +164,28 @@ namespace CSSFormater
         {
             var lexer = this;
             var curentCharacter = lexer.CurrentCharacter;
+            var CurrentLineNumber = lexer.CurrentLineNumber;
+            var startCharacterIndex = lexer.CurrentCharacterNumber;
             var token = curentCharacter.ToString();
             var nextCharacter = lexer.NextCharacter();
 
             if(nextCharacter=='=' && IsOperator(token[0], true))
             {
                 token += nextCharacter;
-                CreateAndAddToken(token, TokenTypes.MatchOperator);
+                CreateAndAddToken(token, TokenTypes.MatchOperator, CurrentLineNumber, startCharacterIndex);
                 lexer.NextCharacter();
                 return;
             }
 
-            CreateAndAddToken(token, TokenTypes.Operator);
+            CreateAndAddToken(token, TokenTypes.Operator, CurrentLineNumber, startCharacterIndex);
         }
 
         private void IdentifierHandling(char identifier = '\0')
         {
             var lexer = this;
             var currentCharacter = lexer.CurrentCharacter;
+            var CurrentLineNumber = lexer.CurrentLineNumber;
+            var startCharacterIndex = lexer.CurrentCharacterNumber;
             string token = identifier != '\0' ? identifier.ToString() + currentCharacter.ToString() : currentCharacter.ToString();
 
             currentCharacter = lexer.NextCharacter();
@@ -190,13 +196,15 @@ namespace CSSFormater
                 currentCharacter = lexer.NextCharacter();
             }
 
-            CreateAndAddToken(token, TokenTypes.Identifier);
+            CreateAndAddToken(token, TokenTypes.Identifier, CurrentLineNumber, startCharacterIndex);
         }
 
         private void StringHandling()
         {
             var lexer = this;
             var currentCharacter = lexer.CurrentCharacter;
+            var CurrentLineNumber = lexer.CurrentLineNumber;
+            var startCharacterIndex = lexer.CurrentCharacterNumber;
             var token = currentCharacter.ToString();
             var quote = currentCharacter;
             char nextCharacter;
@@ -215,7 +223,7 @@ namespace CSSFormater
                     else
                     {
                         // end of line without \ escape
-                        CreateAndAddToken(token, TokenTypes.ErrorToken);
+                        CreateAndAddToken(token, TokenTypes.ErrorToken, CurrentLineNumber, startCharacterIndex);
                     }
                 }
                 else
@@ -235,22 +243,24 @@ namespace CSSFormater
 
             token += currentCharacter;
             lexer.NextCharacter();
-            CreateAndAddToken(token, TokenTypes.String);
+            CreateAndAddToken(token, TokenTypes.String, CurrentLineNumber, startCharacterIndex);
         }
 
         private void CommentHandling()
         {
             var lexer = this;
             var currentCharacter = lexer.CurrentCharacter;
+            var CurrentLineNumber = lexer.CurrentLineNumber;
+            var startCharacterIndex = lexer.CurrentCharacterNumber;
             string token = currentCharacter.ToString();
             char nextCharacter =lexer.NextCharacter();
 
             if(nextCharacter!='*')
             {
                 if (IsOperator(token[0]))
-                    CreateAndAddToken(token, TokenTypes.Operator);
+                    CreateAndAddToken(token, TokenTypes.Operator, CurrentLineNumber, startCharacterIndex);
                 else
-                    CreateAndAddToken(token, TokenTypes.Symbol);
+                    CreateAndAddToken(token, TokenTypes.Symbol, CurrentLineNumber, startCharacterIndex);
                 return;
             }
 
@@ -263,18 +273,20 @@ namespace CSSFormater
             token += nextCharacter.ToString();
             lexer.NextCharacter();
 
-            CreateAndAddToken(token, TokenTypes.Comment);
+            CreateAndAddToken(token, TokenTypes.Comment, CurrentLineNumber, startCharacterIndex);
         }
 
         private void WhiteSpaceHandling()
         {
             var lexer = this;
             var currentCharacter = lexer.CurrentCharacter;
+            var CurrentLineNumber = lexer.CurrentLineNumber;
+            var startCharacterIndex = lexer.CurrentCharacterNumber;
             var token = currentCharacter.ToString();
 
             if(token == "\t")
             {
-                CreateAndAddToken(token, TokenTypes.Tab);
+                CreateAndAddToken(token, TokenTypes.Tab, CurrentLineNumber, startCharacterIndex);
                 lexer.NextCharacter();
             }
             else
@@ -287,7 +299,7 @@ namespace CSSFormater
                     currentCharacter = lexer.NextCharacter();
                 }
 
-                CreateAndAddToken(token, TokenTypes.WhiteSpace);
+                CreateAndAddToken(token, TokenTypes.WhiteSpace, CurrentLineNumber, startCharacterIndex);
             }
         }
 
@@ -295,6 +307,8 @@ namespace CSSFormater
         {
             var lexer = this;
             var currentCharacter = lexer.CurrentCharacter;
+            var CurrentLineNumber = lexer.CurrentLineNumber;
+            var startCharacterIndex = lexer.CurrentCharacterNumber;
             string token = currentCharacter.ToString();
             bool IsPoint = token == ".";
             bool IsNotDigit;
@@ -306,7 +320,7 @@ namespace CSSFormater
             //.2px or .class
             if(IsPoint && IsNotDigit)
             {
-                CreateAndAddToken(token, TokenTypes.Symbol);
+                CreateAndAddToken(token, TokenTypes.Symbol, CurrentLineNumber, startCharacterIndex);
             }
 
             //-2px or -something-something
@@ -320,23 +334,23 @@ namespace CSSFormater
                 if(currentCharacter == '.')
                 {
                     IsPoint = true;
-                    token += currentCharacter;
                 }
+                token += currentCharacter;
                 currentCharacter = lexer.NextCharacter();
             }
 
-            CreateAndAddToken(token, TokenTypes.Number);
+            CreateAndAddToken(token, TokenTypes.Number, CurrentLineNumber, startCharacterIndex);
         }
 
-        private void CreateAndAddToken(string token, TokenTypes tokenType)
+        private void CreateAndAddToken(string token, TokenTypes tokenType, int lineNumber, int startCharacterNumber)
         {
-            Tokens.Add(new Token { TokenType = tokenType, TokenValue = token });
+            Tokens.Add(new Token { TokenType = tokenType, TokenValue = token, LineNumber = lineNumber, StartCharacterNumber = startCharacterNumber });
         }
 
 
         private bool IsOperator(char currentCharacter, bool checkMatch= false)
         {
-            var operatorSet = "+ * = / . , ; : > ~ | \\ % $ # @ ^ !".Split(' ');
+            var operatorSet = "+ * = / ; : > ~ | \\ % $ # @ ^ !".Split(' ');
             var operatorMatchSet = "* ^ | $ ~".Split(' ');
 
             if (!checkMatch)
