@@ -9,11 +9,11 @@ namespace CSSFormater
         public TokenTypes TokenType { get; set; }
         public string TokenValue { get; set; }
         public int LineNumber { get; set; }
-        public int StartCharacterNumber { get; set; }
+        public int Position { get; set; }
 
         public override string ToString()
         {
-            return $"\"{TokenType.ToString("g")}\": \"{TokenValue}\", line number: {LineNumber}, start character number: {StartCharacterNumber}";
+            return $"\"{TokenType.ToString("g")}\": \"{TokenValue}\", line number: {LineNumber+1}, position: {Position+1}";
         }
     }
 
@@ -30,6 +30,7 @@ namespace CSSFormater
         ErrorToken,
         MatchOperator,
         OpeningBracket,
-        ClosingBracket
+        ClosingBracket,
+        NewLine
     }
 }
