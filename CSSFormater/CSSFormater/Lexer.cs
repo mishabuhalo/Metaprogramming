@@ -99,7 +99,7 @@ namespace CSSFormater
 
             if (currentCharacter == '-' || currentCharacter == '.' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
             {
-                NumberHandler();
+                NumberHandling();
             }
 
             if (currentCharacter == ' ' || currentCharacter == '\t')
@@ -109,7 +109,7 @@ namespace CSSFormater
 
             if (currentCharacter == '/')
             {
-
+                CommentHandling();
             }
 
             if (currentCharacter == '\"' || currentCharacter == '\'')
@@ -133,6 +133,30 @@ namespace CSSFormater
             }
 
             else throw new Exception("Unrcognized character");
+        }
+
+        private void CommentHandling()
+        {
+            var lexer = this;
+            var currentCharacter = lexer.CurrentCharacter;
+            string token = currentCharacter.ToString();
+            char nextCharacter =lexer.NextCharacter();
+
+            if(nextCharacter!='*')
+            {
+                CreateAndAddToken(token, TokenTypes.Symbol);
+            }
+
+            while(currentCharacter!='*' && nextCharacter !='/')
+            {
+                token += nextCharacter.ToString();
+                currentCharacter = nextCharacter;
+                nextCharacter = lexer.NextCharacter();
+            }
+            token += nextCharacter.ToString();
+            lexer.NextCharacter();
+
+            CreateAndAddToken(token, TokenTypes.Comment);
         }
 
         private void WhiteSpaceHandling()
@@ -159,7 +183,7 @@ namespace CSSFormater
             }
         }
 
-        private void NumberHandler()
+        private void NumberHandling()
         {
             var lexer = this;
             var currentCharacter = lexer.CurrentCharacter;
