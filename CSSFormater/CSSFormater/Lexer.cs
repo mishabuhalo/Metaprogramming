@@ -114,7 +114,7 @@ namespace CSSFormater
 
             if (currentCharacter == '\"' || currentCharacter == '\'')
             {
-
+                StringHandling();
             }
 
             if(IsLetter(currentCharacter))
@@ -133,6 +133,49 @@ namespace CSSFormater
             }
 
             else throw new Exception("Unrcognized character");
+        }
+
+        private void StringHandling()
+        {
+            var lexer = this;
+            var currentCharacter = lexer.CurrentCharacter;
+            var token = currentCharacter.ToString();
+            var quote = currentCharacter;
+            var nextCharacter = lexer.NextCharacter();
+
+            while(currentCharacter!=quote)
+            {
+                if(currentCharacter == '\n')
+                {
+                    nextCharacter = lexer.NextCharacter();
+                    if(nextCharacter == '\\')
+                    {
+                        token += currentCharacter + nextCharacter;
+                    }
+                    else
+                    {
+                        // end of line without \ escape
+                        CreateAndAddToken(token, TokenTypes.ErrorToken);
+                    }
+                }
+                else
+                {
+                    if(currentCharacter== '\\')
+                    {
+                        token += currentCharacter + lexer.NextCharacter();
+                    }
+                    else
+                    {
+                        token += currentCharacter;
+                    }
+                }
+
+                currentCharacter = lexer.NextCharacter();
+            }
+
+            token += currentCharacter;
+            lexer.NextCharacter();
+            CreateAndAddToken(token, TokenTypes.String);
         }
 
         private void CommentHandling()
