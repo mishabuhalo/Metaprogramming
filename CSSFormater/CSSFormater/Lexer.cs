@@ -104,7 +104,7 @@ namespace CSSFormater
 
             if (currentCharacter == ' ' || currentCharacter == '\t')
             {
-
+                WhiteSpaceHandling();
             }
 
             if (currentCharacter == '/')
@@ -133,6 +133,30 @@ namespace CSSFormater
             }
 
             else throw new Exception("Unrcognized character");
+        }
+
+        private void WhiteSpaceHandling()
+        {
+            var lexer = this;
+            var currentCharacter = lexer.CurrentCharacter;
+            var token = currentCharacter.ToString();
+
+            if(token == "\t")
+            {
+                CreateAndAddToken(token, TokenTypes.Tab);
+            }
+            else
+            {
+                currentCharacter = lexer.NextCharacter();
+
+                while(currentCharacter == ' ')
+                {
+                    token += currentCharacter.ToString();
+                    currentCharacter = lexer.NextCharacter();
+                }
+
+                CreateAndAddToken(token, TokenTypes.WhiteSpace);
+            }
         }
 
         private void NumberHandler()
