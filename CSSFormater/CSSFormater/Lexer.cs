@@ -51,7 +51,7 @@ namespace CSSFormater
 
             lexer.CurrentLineNumber += 1;
 
-            if(lexer.TotalLinesCount <= lexer.CurrentLineNumber)
+            if (lexer.TotalLinesCount <= lexer.CurrentLineNumber)
             {
                 lexer.CurrentLine = String.Empty;
             }
@@ -59,7 +59,7 @@ namespace CSSFormater
             {
                 lexer.CurrentLine = lexer.Lines[lexer.CurrentLineNumber];
             }
-            if(lexer.CurrentCharacterNumber!=-1)
+            if (lexer.CurrentCharacterNumber != -1)
             {
                 lexer.CurrentCharacterNumber = 0;
             }
@@ -72,9 +72,9 @@ namespace CSSFormater
 
             lexer.CurrentCharacterNumber += 1;
 
-            if(lexer.CurrentCharacterNumber == lexer.CurrentLine.Length)
+            if (lexer.CurrentCharacterNumber == lexer.CurrentLine.Length)
             {
-                if(String.IsNullOrEmpty(this.NextLine()))
+                if (String.IsNullOrEmpty(this.NextLine()))
                 {
                     this.CurrentCharacter = '\0';
                     return '\0';
@@ -89,9 +89,71 @@ namespace CSSFormater
             return this.CurrentCharacter;
         }
 
-        private List<Token> Tokenize()
+        private Token Tokenize()
         {
-            throw new NotImplementedException();
+            var currentCharacter = this.CurrentCharacter;
+
+            if (currentCharacter == '-' || currentCharacter == '.' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
+            {
+
+            }
+
+            if (currentCharacter == ' ' || currentCharacter == '\t')
+            {
+
+            }
+
+            if (currentCharacter == '/')
+            {
+
+            }
+
+            if (currentCharacter == '\"' || currentCharacter == '\'')
+            {
+
+            }
+
+            if(IsLetter(currentCharacter))
+            {
+
+            }
+
+            if(IsOperator(currentCharacter))
+            {
+
+            }
+
+            if (currentCharacter == '\n')
+            {
+                this.NextCharacter();
+                return null;
+            }
+
+            else throw new Exception("Unrcognized character");
+        }
+
+        private bool IsOperator(char currentCharacter)
+        {
+            var operatorSet = "{ } [ ] ( ) + * = . , ; : > ~ | \\ % $ # @ ^ !".Split(' ');
+
+            for(int i = 0; i < operatorSet.Count(); ++i)
+            {
+                if(currentCharacter.ToString() == operatorSet[i])
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool IsLetter(char currentCharacter)
+        {
+            return (currentCharacter == '_' || currentCharacter == '-' || Char.IsLetter(currentCharacter));
+        }
+
+        private bool IsDigit(char currentCharacter)
+        {
+            return Char.IsDigit(currentCharacter);
         }
     }
 }
