@@ -119,7 +119,7 @@ namespace CSSFormater
 
             if(IsLetter(currentCharacter))
             {
-
+                IdentifierHandling()
             }
 
             if(IsOperator(currentCharacter))
@@ -132,7 +132,24 @@ namespace CSSFormater
                 this.NextCharacter();
             }
 
-            else throw new Exception("Unrcognized character");
+            CreateAndAddToken(currentCharacter.ToString(), TokenTypes.ErrorToken);
+        }
+
+        private void IdentifierHandling(char identifier = '\0')
+        {
+            var lexer = this;
+            var currentCharacter = lexer.CurrentCharacter;
+            string token = identifier != '\0' ? identifier.ToString() + currentCharacter.ToString() : currentCharacter.ToString();
+
+            currentCharacter = lexer.NextCharacter();
+
+            while(IsLetter(currentCharacter) || IsDigit(currentCharacter))
+            {
+                token += currentCharacter;
+                currentCharacter = lexer.NextCharacter();
+            }
+
+            CreateAndAddToken(token, TokenTypes.Identifier);
         }
 
         private void StringHandling()
@@ -249,7 +266,7 @@ namespace CSSFormater
             //-2px or -something-something
             if(token == "-" && IsNotDigit)
             {
-                 HandleIdentifier('-');
+                 IdentifierHandling('-');
             }
 
             while(currentCharacter!='\0' &&(IsDigit(currentCharacter)||(!IsPoint&& currentCharacter == '.')))
@@ -268,11 +285,6 @@ namespace CSSFormater
         private void CreateAndAddToken(string token, TokenTypes tokenType)
         {
             Tokens.Add(new Token { TokenType = tokenType, TokenValue = token });
-        }
-
-        private Token HandleIdentifier(char v)
-        {
-            throw new NotImplementedException();
         }
 
 
