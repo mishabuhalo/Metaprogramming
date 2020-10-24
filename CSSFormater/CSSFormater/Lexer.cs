@@ -16,6 +16,8 @@ namespace CSSFormater
         public char CurrentCharacter { get; set; }
         public int CurrentCharacterNumber { get; set; }
 
+        private List<Token> Tokens { get; set; }
+
         public Lexer(string filePath)
         {
             Init(filePath);
@@ -39,6 +41,8 @@ namespace CSSFormater
                 this.CurrentLineNumber = -1;
                 this.CurrentLine = "";
                 this.CurrentCharacter = '\0';
+
+                Tokens = new List<Token>();
 
                 this.NextLine();
                 this.NextCharacter();
@@ -89,13 +93,13 @@ namespace CSSFormater
             return this.CurrentCharacter;
         }
 
-        private Token Tokenize()
+        private void Tokenize()
         {
             var currentCharacter = this.CurrentCharacter;
 
             if (currentCharacter == '-' || currentCharacter == '.' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
             {
-
+                NumberHandler();
             }
 
             if (currentCharacter == ' ' || currentCharacter == '\t')
@@ -126,11 +130,58 @@ namespace CSSFormater
             if (currentCharacter == '\n')
             {
                 this.NextCharacter();
-                return null;
             }
 
             else throw new Exception("Unrcognized character");
         }
+
+        private void NumberHandler()
+        {
+            var lexer = this;
+            var currentCharacter = lexer.CurrentCharacter;
+            string token = currentCharacter.ToString();
+            bool IsPoint = token == ".";
+            bool IsNotDigit;
+
+            currentCharacter = lexer.NextCharacter();
+
+            IsNotDigit = !IsDigit(currentCharacter);
+
+            //.2px or .class
+            if(IsPoint && IsNotDigit)
+            {
+                CreateAndAddToken(token, TokenTypes.Symbol);
+            }
+
+            //-2px or -something-something
+            if(token == "-" && IsNotDigit)
+            {
+                 HandleIdentifier('-');
+            }
+
+            while(currentCharacter!='\0' &&(IsDigit(currentCharacter)||(!IsPoint&& currentCharacter == '.')))
+            {
+                if(currentCharacter == '.')
+                {
+                    IsPoint = true;
+                    token += currentCharacter;
+                }
+                currentCharacter = lexer.NextCharacter();
+            }
+
+            CreateAndAddToken(token, TokenTypes.Number);
+        }
+
+        private void CreateAndAddToken(string token, TokenTypes tokenType)
+        {
+            Tokens.Add(new Token { TokenType = tokenType, TokenValue = token });
+        }
+
+        private Token HandleIdentifier(char v)
+        {
+            throw new NotImplementedException();
+        }
+
 
         private bool IsOperator(char currentCharacter)
         {
@@ -144,6 +195,14 @@ namespace CSSFormater
                 }
             }
             return false;
+        }
+
+        public void PrintAllTokens()
+        {
+            foreach(var token in this.Tokens)
+            {
+                Console.WriteLine(token.ToString() + "\n");
+            }
         }
 
         private bool IsLetter(char currentCharacter)
