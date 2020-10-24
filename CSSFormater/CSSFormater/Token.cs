@@ -25,6 +25,7 @@ namespace CSSFormater
         Identifier,
         Number,
         Operator,
-        Symbol
+        Symbol,
+        ErrorToken
     }
 }
