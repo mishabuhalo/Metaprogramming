@@ -21,11 +21,12 @@ namespace CSSFormater
         String,
         WhiteSpace,
         Tab,
-        NewLine,
         Identifier,
         Number,
         Operator,
         Symbol,
-        ErrorToken
+        ErrorToken,
+        MatchOperator,
+        Bracket
     }
 }
