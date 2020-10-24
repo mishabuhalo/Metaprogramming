@@ -141,9 +141,11 @@ namespace CSSFormater
             var currentCharacter = lexer.CurrentCharacter;
             var token = currentCharacter.ToString();
             var quote = currentCharacter;
-            var nextCharacter = lexer.NextCharacter();
+            char nextCharacter;
 
-            while(currentCharacter!=quote)
+            currentCharacter = lexer.NextCharacter();
+
+            while (currentCharacter!=quote)
             {
                 if(currentCharacter == '\n')
                 {
