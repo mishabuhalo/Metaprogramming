@@ -119,12 +119,16 @@ namespace CSSFormater
 
             if(IsLetter(currentCharacter))
             {
-                IdentifierHandling()
+                IdentifierHandling();
             }
 
             if(IsOperator(currentCharacter))
             {
-
+                OperatorHandling();
+            }
+            if(IsBracket(currentCharacter))
+            {
+                BracketHandling();
             }
 
             if (currentCharacter == '\n')
@@ -133,6 +137,33 @@ namespace CSSFormater
             }
 
             CreateAndAddToken(currentCharacter.ToString(), TokenTypes.ErrorToken);
+        }
+
+        private void BracketHandling()
+        {
+            var lexer = this;
+            var currentCharacter = lexer.CurrentCharacter;
+            var token = currentCharacter.ToString();
+            CreateAndAddToken(token, TokenTypes.Bracket);
+            lexer.NextCharacter();
+        }
+
+        private void OperatorHandling()
+        {
+            var lexer = this;
+            var curentCharacter = lexer.CurrentCharacter;
+            var token = curentCharacter.ToString();
+            var nextCharacter = lexer.NextCharacter();
+
+            if(nextCharacter=='=' && IsOperator(token[0], true))
+            {
+                token += nextCharacter;
+                CreateAndAddToken(token, TokenTypes.MatchOperator);
+                lexer.NextCharacter();
+                return;
+            }
+
+            CreateAndAddToken(token, TokenTypes.Operator);
         }
 
         private void IdentifierHandling(char identifier = '\0')
@@ -288,13 +319,42 @@ namespace CSSFormater
         }
 
 
-        private bool IsOperator(char currentCharacter)
+        private bool IsOperator(char currentCharacter, bool checkMatch= false)
         {
-            var operatorSet = "{ } [ ] ( ) + * = . , ; : > ~ | \\ % $ # @ ^ !".Split(' ');
+            var operatorSet = "+ * = . , ; : > ~ | \\ % $ # @ ^ !".Split(' ');
+            var operatorMatchSet = "* ^ | $ ~".Split(' ');
 
-            for(int i = 0; i < operatorSet.Count(); ++i)
+            if (!checkMatch)
             {
-                if(currentCharacter.ToString() == operatorSet[i])
+                for (int i = 0; i < operatorSet.Count(); ++i)
+                {
+                    if (currentCharacter.ToString() == operatorSet[i])
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            else
+            {
+                for (int i = 0; i < operatorMatchSet.Count(); ++i)
+                {
+                    if (currentCharacter.ToString() == operatorMatchSet[i])
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }
+
+        private bool IsBracket(char currentCharacter)
+        {
+            var bracketSet = "{ } [ ] ( )".Split(' ');
+
+            for(int i = 0; i< bracketSet.Count(); ++i)
+            {
+                if(currentCharacter.ToString() == bracketSet[i])
                 {
                     return true;
                 }
