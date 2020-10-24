@@ -8,7 +8,11 @@ namespace CSSFormater
         {
             var testFilePath = "test.css";
 
-            Lexer lexer = new Lexer(testFilePath);
+            Lexer lexer = new Lexer();
+
+            lexer.Lex(testFilePath);
+
+            lexer.PrintAllTokens();
         }
     }
 }

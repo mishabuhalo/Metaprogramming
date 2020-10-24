@@ -9,19 +9,13 @@ namespace CSSFormater
 {
     public class Lexer
     {
-        public List<string> Lines { get; set; }
-        public int TotalLinesCount { get; set; }
-        public string CurrentLine { get; set; }
-        public int CurrentLineNumber { get; set; }
-        public char CurrentCharacter { get; set; }
-        public int CurrentCharacterNumber { get; set; }
-
+        private List<string> Lines { get; set; }
+        private int TotalLinesCount { get; set; }
+        private string CurrentLine { get; set; }
+        private int CurrentLineNumber { get; set; }
+        private char CurrentCharacter { get; set; }
+        private int CurrentCharacterNumber { get; set; }
         private List<Token> Tokens { get; set; }
-
-        public Lexer(string filePath)
-        {
-            Init(filePath);
-        }
 
         private void Init(string filePath)
         {
@@ -93,6 +87,13 @@ namespace CSSFormater
             return this.CurrentCharacter;
         }
 
+        public void Lex(string filePath)
+        {
+            this.Init(filePath);
+            while (this.CurrentCharacter != '\0')
+                Tokenize();
+        }
+
         private void Tokenize()
         {
             var currentCharacter = this.CurrentCharacter;
@@ -100,43 +101,52 @@ namespace CSSFormater
             if (currentCharacter == '-' || currentCharacter == '.' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
             {
                 NumberHandling();
+                return;
             }
 
             if (currentCharacter == ' ' || currentCharacter == '\t')
             {
                 WhiteSpaceHandling();
+                return;
             }
 
             if (currentCharacter == '/')
             {
                 CommentHandling();
+                return;
             }
 
             if (currentCharacter == '\"' || currentCharacter == '\'')
             {
                 StringHandling();
+                return;
             }
 
             if(IsLetter(currentCharacter))
             {
                 IdentifierHandling();
+                return;
             }
 
             if(IsOperator(currentCharacter))
             {
                 OperatorHandling();
+                return;
             }
             if(IsBracket(currentCharacter))
             {
                 BracketHandling();
+                return;
             }
 
-            if (currentCharacter == '\n')
+            if (currentCharacter == '\n' || currentCharacter == '\r')
             {
                 this.NextCharacter();
+                return;
             }
 
             CreateAndAddToken(currentCharacter.ToString(), TokenTypes.ErrorToken);
+            this.NextCharacter();
         }
 
         private void BracketHandling()
@@ -237,10 +247,14 @@ namespace CSSFormater
 
             if(nextCharacter!='*')
             {
-                CreateAndAddToken(token, TokenTypes.Symbol);
+                if (IsOperator(token[0]))
+                    CreateAndAddToken(token, TokenTypes.Operator);
+                else
+                    CreateAndAddToken(token, TokenTypes.Symbol);
+                return;
             }
 
-            while(currentCharacter!='*' && nextCharacter !='/')
+            while(!(currentCharacter=='*' && nextCharacter =='/'))
             {
                 token += nextCharacter.ToString();
                 currentCharacter = nextCharacter;
@@ -261,6 +275,7 @@ namespace CSSFormater
             if(token == "\t")
             {
                 CreateAndAddToken(token, TokenTypes.Tab);
+                lexer.NextCharacter();
             }
             else
             {
@@ -321,7 +336,7 @@ namespace CSSFormater
 
         private bool IsOperator(char currentCharacter, bool checkMatch= false)
         {
-            var operatorSet = "+ * = . , ; : > ~ | \\ % $ # @ ^ !".Split(' ');
+            var operatorSet = "+ * = / . , ; : > ~ | \\ % $ # @ ^ !".Split(' ');
             var operatorMatchSet = "* ^ | $ ~".Split(' ');
 
             if (!checkMatch)
@@ -366,7 +381,7 @@ namespace CSSFormater
         {
             foreach(var token in this.Tokens)
             {
-                Console.WriteLine(token.ToString() + "\n");
+                Console.WriteLine(token.ToString());
             }
         }
 
