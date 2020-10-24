@@ -1,4 +1,6 @@
-﻿using System;
+﻿using CSSFormater.Exceptions;
+using CSSFormater.Services;
+using System;
 
 namespace CSSFormater
 {
@@ -7,6 +9,16 @@ namespace CSSFormater
         static void Main(string[] args)
         {
             var testFilePath = "test.css";
+
+            try
+            {
+                var configuration = ConfigurationReadingService.ReadConfiguration();
+            }
+            catch (ConfigurationConstructionException e)
+            {
+                Console.WriteLine(e.Message);
+                return;
+            }
 
             Lexer lexer = new Lexer();
 
