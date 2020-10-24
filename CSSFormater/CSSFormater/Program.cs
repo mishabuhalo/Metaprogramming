@@ -6,7 +6,9 @@ namespace CSSFormater
     {
         static void Main(string[] args)
         {
+            var testFilePath = "test.css";
 
+            Lexer lexer = new Lexer(testFilePath);
         }
     }
 }
