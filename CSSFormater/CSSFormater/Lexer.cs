@@ -27,7 +27,7 @@ namespace CSSFormater
 
                 string textFromFile = Encoding.Default.GetString(bytes);
 
-                this.Lines = textFromFile.Replace(@"/\r\n/g", "\n").Replace(@"/\r\g", "\n").Split('\n').ToList();
+                this.Lines = textFromFile.Replace(Environment.NewLine, "\n").Split("\n").ToList();
 
                 this.TotalLinesCount = Lines.Count;
 
@@ -72,7 +72,8 @@ namespace CSSFormater
 
             if (lexer.CurrentCharacterNumber == lexer.CurrentLine.Length)
             {
-                if (String.IsNullOrEmpty(this.NextLine()))
+                this.NextLine();
+                if (this.CurrentLineNumber == this.TotalLinesCount)
                 {
                     this.CurrentCharacter = '\0';
                     return '\0';
@@ -141,6 +142,7 @@ namespace CSSFormater
 
             if (currentCharacter == '\n' || currentCharacter == '\r')
             {
+                CreateAndAddToken("line", TokenTypes.NewLine, this.CurrentLineNumber, this.CurrentCharacterNumber);
                 this.NextCharacter();
                 return;
             }
@@ -348,7 +350,7 @@ namespace CSSFormater
 
         private void CreateAndAddToken(string token, TokenTypes tokenType, int lineNumber, int startCharacterNumber)
         {
-            Tokens.Add(new Token { TokenType = tokenType, TokenValue = token, LineNumber = lineNumber, StartCharacterNumber = startCharacterNumber });
+            Tokens.Add(new Token { TokenType = tokenType, TokenValue = token, LineNumber = lineNumber, Position = startCharacterNumber });
         }
 
 
