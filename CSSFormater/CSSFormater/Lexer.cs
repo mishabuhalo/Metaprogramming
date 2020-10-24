@@ -156,7 +156,11 @@ namespace CSSFormater
             var CurrentLineNumber = lexer.CurrentLineNumber;
             var startCharacterIndex = lexer.CurrentCharacterNumber;
             var token = currentCharacter.ToString();
-            CreateAndAddToken(token, TokenTypes.Bracket, CurrentLineNumber, startCharacterIndex);
+
+            if(currentCharacter == '{' || currentCharacter == '(' || currentCharacter == '[')
+                CreateAndAddToken(token, TokenTypes.OpeningBracket, CurrentLineNumber, startCharacterIndex);
+            else
+                CreateAndAddToken(token, TokenTypes.ClosingBracket, CurrentLineNumber, startCharacterIndex);
             lexer.NextCharacter();
         }
 

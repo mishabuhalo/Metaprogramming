@@ -29,6 +29,7 @@ namespace CSSFormater
         Symbol,
         ErrorToken,
         MatchOperator,
-        Bracket
+        OpeningBracket,
+        ClosingBracket
     }
 }
