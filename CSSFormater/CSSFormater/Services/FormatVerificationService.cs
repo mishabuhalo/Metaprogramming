@@ -20,10 +20,11 @@ namespace CSSFormater.Services
         }
         public void VerifyFileTokens(List<Token> fileTokens)
         {
-            TabsAndIndentsVerification(fileTokens);
-            BlankLinesValidation(fileTokens);
-            BracesPlacementValidation(fileTokens);
-            AlignValuesValidation(fileTokens);
+            //TabsAndIndentsVerification(fileTokens);
+            //BlankLinesValidation(fileTokens);
+            //BracesPlacementValidation(fileTokens);
+            //AlignValuesValidation(fileTokens);
+            QuoteMarksValidation(fileTokens);
         }
 
         private void TabsAndIndentsVerification(List<Token> fileTokens)
@@ -249,6 +250,24 @@ namespace CSSFormater.Services
                         }
                         i++;
                     }
+                }
+            }
+        }
+
+        private void QuoteMarksValidation(List<Token> fileTokens)
+        {
+            var stringTokens = fileTokens.Where(token => token.TokenType == TokenTypes.String).ToList();
+            var quotesMarksType = _configuration.Other.QuoteMarks;
+            for(int i = 0; i < stringTokens.Count; ++i)
+            {
+                if(quotesMarksType == QuoteMarksTypes.Single && (!stringTokens[i].TokenValue.StartsWith('\'') && !stringTokens[i].TokenValue.EndsWith('\'')))
+                {
+                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber +1, ErrorMessage = "String value should be wrapped in single quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
+                }
+
+                if (quotesMarksType == QuoteMarksTypes.Double && (!stringTokens[i].TokenValue.StartsWith('\"') && !stringTokens[i].TokenValue.EndsWith('\"')))
+                {
+                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber +1, ErrorMessage = "String value should be wrapped in double quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
                 }
             }
         }
