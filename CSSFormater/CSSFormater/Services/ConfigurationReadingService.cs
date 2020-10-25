@@ -19,7 +19,7 @@ namespace CSSFormater.Services
 
         public static Configuration ReadConfiguration()
         {
-            var json = File.ReadAllText($"../../../{ConfigurationFolderName}/{ConfigurationFileName}");
+            var json = File.ReadAllText($"{ConfigurationFolderName}/{ConfigurationFileName}");
 
             Configuration configuration = null;
             try
