@@ -27,7 +27,8 @@ namespace CSSFormater.Services
             //QuoteMarksValidation(fileTokens);
             //ClosingBracketsValidation(fileTokens);
             //SingleLineBlocksValidation(fileTokens);
-            SpacesAfterColonValidation(fileTokens);
+            //SpacesValidation(fileTokens);
+            HexColorsValidation(fileTokens);
         }
 
         private void TabsAndIndentsVerification(List<Token> fileTokens)
@@ -334,7 +335,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void SpacesAfterColonValidation(List<Token> fileTokens)
+        private void SpacesValidation(List<Token> fileTokens)
         {
             var spacesAfterColon = _configuration.Other.Spaces.AfterColon;
             var spaceBeforeOpeningBracket = _configuration.Other.Spaces.BeforeOpeningBrace;
@@ -362,6 +363,38 @@ namespace CSSFormater.Services
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should place space before openning space", ErrorType = VerificationErrorTypes.SpaceBeforeOpeningBracketError });
 
                     }
+                }
+            }
+        }
+        
+        private void HexColorsValidation(List<Token> fileTokens)
+        {
+            var hexColorLowerCase = _configuration.Other.HexColors.ConvertHexColorsToLowerCase;
+            var hexColorsLongFormat = _configuration.Other.HexColors.ConvertHexColorsFormatToLongFormat;
+            bool isBracketOpened = false;
+
+            for(int i = 0; i < fileTokens.Count -1; ++i)
+            {
+                if (fileTokens[i].TokenValue == "{")
+                    isBracketOpened = true;
+
+                else if (fileTokens[i].TokenValue == "}")
+                    isBracketOpened = false;
+
+                if(fileTokens[i].TokenValue == "#" && isBracketOpened)
+                {
+                    var hexColor = fileTokens[i + 1].TokenValue;
+                    if (hexColor.Length == 6 && !hexColorsLongFormat)
+                        verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in short format", ErrorType = VerificationErrorTypes.HexColorFormatError });
+                    else if(hexColor.Length == 3 && hexColorsLongFormat)
+                        verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in long format", ErrorType = VerificationErrorTypes.HexColorFormatError });
+
+                    if(hexColorLowerCase && !IsStringInLowerCase(hexColor))
+                        verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in lower case", ErrorType = VerificationErrorTypes.HexColorCaseError });
+
+                    else if (!hexColorLowerCase && !IsStringInUpperCase(hexColor))
+                        verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in upper case", ErrorType = VerificationErrorTypes.HexColorCaseError });
+
                 }
             }
         }
@@ -397,6 +430,26 @@ namespace CSSFormater.Services
         private int GetCountOfTabsInLineBeforeAttributeValue(List<Token> fileTokens, Token token)
         {
             return fileTokens.Where(x => x.LineNumber == token.LineNumber && x.TokenType == TokenTypes.Tab && x.Position < token.Position).Count();
+        }
+
+        private bool IsStringInLowerCase(string value)
+        {
+            for(int i = 0; i< value.Length; ++i)
+            {
+                if (!Char.IsLower(value[i]))
+                    return false;
+            }
+            return true;
+        }
+
+        private bool IsStringInUpperCase(string value)
+        {
+            for (int i = 0; i < value.Length; ++i)
+            {
+                if (!Char.IsUpper(value[i]))
+                    return false;
+            }
+            return true;
         }
     }
 }
