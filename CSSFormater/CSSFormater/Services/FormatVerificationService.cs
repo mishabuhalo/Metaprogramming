@@ -29,6 +29,13 @@ namespace CSSFormater.Services
             SingleLineBlocksValidation(fileTokens);
             SpacesValidation(fileTokens);
             HexColorsValidation(fileTokens);
+
+            verificationErrors = verificationErrors.OrderBy(x => x.ErrorLineNumber).ToList();
+        }
+
+        public List<VerificationError> GetVerificationErrors()
+        {
+            return verificationErrors;
         }
 
         private void TabsAndIndentsVerification(List<Token> fileTokens)
@@ -47,7 +54,7 @@ namespace CSSFormater.Services
                 if (fileTokens[i].TokenValue == "{")
                 {
                     i++;
-                    while (fileTokens[i + 1].TokenValue != "}")
+                    while (i < fileTokens.Count -2 && fileTokens[i + 1].TokenValue != "}")
                     {
                         if (fileTokens[i].TokenType == TokenTypes.NewLine)
                         {
@@ -55,7 +62,7 @@ namespace CSSFormater.Services
                             var lineNumber = fileTokens[i].LineNumber + 1;
                             var currentIndent = 0;
                             var tabsCount = 0;
-                            while (fileTokens[i].TokenType == TokenTypes.Tab || fileTokens[i].TokenType == TokenTypes.WhiteSpace)
+                            while (fileTokens[i].TokenType == TokenTypes.Tab || fileTokens[i].TokenType == TokenTypes.WhiteSpace && i < fileTokens.Count)
                             {
                                 if (fileTokens[i].TokenType == TokenTypes.Tab)
                                 {
@@ -177,7 +184,7 @@ namespace CSSFormater.Services
                 {
                     i++;
                     var maxStartIndex = GetMaximalStartIndexOfAttributeValueInBlock(fileTokens, i);
-                    while (fileTokens[i].TokenValue != "}")
+                    while (fileTokens[i].TokenValue != "}" && i < fileTokens.Count)
                     {
                         if (fileTokens[i].TokenValue == ":")
                         {
@@ -282,7 +289,7 @@ namespace CSSFormater.Services
 
             for(int i = 1; i < fileTokens.Count; ++i)
             {
-                if(fileTokens[i].TokenValue == "}")
+                if(fileTokens[i].TokenValue == "}" )
                 {
                     if (alignClosingBracketsWithProperies)
                     {
