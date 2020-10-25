@@ -26,7 +26,8 @@ namespace CSSFormater.Services
             //AlignValuesValidation(fileTokens);
             //QuoteMarksValidation(fileTokens);
             //ClosingBracketsValidation(fileTokens);
-            SingleLineBlocksValidation(fileTokens);
+            //SingleLineBlocksValidation(fileTokens);
+            SpacesAfterColonValidation(fileTokens);
         }
 
         private void TabsAndIndentsVerification(List<Token> fileTokens)
@@ -183,13 +184,13 @@ namespace CSSFormater.Services
 
                             if (alignValuesType == AlignValuesTypes.DoNotAlign)
                             {
-                                if (fileTokens[i + 1].TokenType != TokenTypes.WhiteSpace)
+                                if (fileTokens[i + 1].TokenType != TokenTypes.WhiteSpace && _configuration.Other.Spaces.AfterColon)
                                 {
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be a white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                 }
                                 else
                                 {
-                                    if (fileTokens[i + 1].TokenValue.Length != 1)
+                                    if (fileTokens[i + 1].TokenValue.Length != 1 && _configuration.Other.Spaces.AfterColon)
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
 
                                 }
@@ -223,14 +224,14 @@ namespace CSSFormater.Services
                             if (alignValuesType == AlignValuesTypes.OnColon)
                             {
                                 int identifierPosition = 0;
-                                if (fileTokens[i + 1].TokenType != TokenTypes.WhiteSpace)
+                                if (fileTokens[i + 1].TokenType != TokenTypes.WhiteSpace && _configuration.Other.Spaces.AfterColon)
                                 {
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be a white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                     identifierPosition = fileTokens[i + 1].Position;
                                 }
                                 else
                                 {
-                                    if(fileTokens[i+1].TokenValue.Length >1)
+                                    if(fileTokens[i+1].TokenValue.Length >1 && _configuration.Other.Spaces.AfterColon)
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
 
                                     identifierPosition = fileTokens[i + 2].Position;
@@ -328,6 +329,38 @@ namespace CSSFormater.Services
                         {
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
                         }
+                    }
+                }
+            }
+        }
+
+        private void SpacesAfterColonValidation(List<Token> fileTokens)
+        {
+            var spacesAfterColon = _configuration.Other.Spaces.AfterColon;
+            var spaceBeforeOpeningBracket = _configuration.Other.Spaces.BeforeOpeningBrace;
+            bool isBracketOpened = false; 
+            for(int i = 0; i < fileTokens.Count-1; ++i)
+            {
+                if (fileTokens[i].TokenValue == "{")
+                    isBracketOpened = true;
+
+                if (fileTokens[i].TokenValue == "}")
+                    isBracketOpened = false;
+
+                if (fileTokens[i].TokenValue == ":" && spacesAfterColon && isBracketOpened)
+                {
+                    if (fileTokens[i + 1].TokenType != TokenTypes.WhiteSpace)
+                        verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should place space after colon", ErrorType = VerificationErrorTypes.SpaceAfterColonError });
+
+                }
+
+                if (_configuration.Other.BracesPlacement == BracesPlacementTypes.EndOfLine)
+                {
+                    if (fileTokens[i].TokenValue == "{" && spaceBeforeOpeningBracket)
+                    {
+                        if (fileTokens[i - 1].TokenType != TokenTypes.WhiteSpace)
+                            verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should place space before openning space", ErrorType = VerificationErrorTypes.SpaceBeforeOpeningBracketError });
+
                     }
                 }
             }
