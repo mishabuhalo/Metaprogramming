@@ -15,7 +15,8 @@ namespace CSSFormater
         private int CurrentLineNumber { get; set; }
         private char CurrentCharacter { get; set; }
         private int CurrentCharacterNumber { get; set; }
-        public List<Token> Tokens { get; set; }
+        private List<Token> Tokens { get; set; }
+
 
         private void Init(string filePath)
         {
@@ -41,6 +42,11 @@ namespace CSSFormater
                 this.NextLine();
                 this.NextCharacter();
             }
+        }
+
+        public List<Token> GetTokens()
+        {
+            return this.Tokens;
         }
 
         private string NextLine()
