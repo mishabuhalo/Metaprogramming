@@ -20,8 +20,9 @@ namespace CSSFormater.Services
         }
         public void VerifyFileTokens(List<Token> fileTokens)
         {
-            TabsAndIndentsVerification(fileTokens);
-            BlankLinesValidation(fileTokens);
+            //TabsAndIndentsVerification(fileTokens);
+            //BlankLinesValidation(fileTokens);
+            BracesPlacementValidation(fileTokens);
         }
 
         private void TabsAndIndentsVerification(List<Token> fileTokens)
@@ -138,6 +139,22 @@ namespace CSSFormater.Services
 
                     if (currentBlankLinesCount - 1 < minimumBlankLinesAroundTopLevelBlocks)
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Code style error. You ddid not reach the minimum number of blank lines around top level blocks on {minimumBlankLinesAroundTopLevelBlocks - currentBlankLinesCount+1}.", ErrorType = VerificationErrorTypes.BlankLinesError });
+                }
+            }
+        }
+
+        private void BracesPlacementValidation(List<Token> fileTokens)
+        {
+            var bracesPlacementType = _configuration.Other.BracesPlacement;
+
+            for(int i = 1; i < fileTokens.Count; ++i)
+            {
+                if(fileTokens[i].TokenValue == "{")
+                {
+                    if (fileTokens[i - 1].TokenType == TokenTypes.NewLine && bracesPlacementType != BracesPlacementTypes.NextLine)
+                        verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber, ErrorMessage = "Code style error. You should place bracket at the end of line", ErrorType = VerificationErrorTypes.BracesReplacementError });
+                    if(fileTokens[i-1].TokenType!=TokenTypes.NewLine && bracesPlacementType !=BracesPlacementTypes.EndOfLine)
+                        verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber+1, ErrorMessage = "Code style error. You should place bracket at the next line", ErrorType = VerificationErrorTypes.BracesReplacementError });
                 }
             }
         }
