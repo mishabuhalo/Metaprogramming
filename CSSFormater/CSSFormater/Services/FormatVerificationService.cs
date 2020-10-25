@@ -24,7 +24,8 @@ namespace CSSFormater.Services
             //BlankLinesValidation(fileTokens);
             //BracesPlacementValidation(fileTokens);
             //AlignValuesValidation(fileTokens);
-            QuoteMarksValidation(fileTokens);
+            //QuoteMarksValidation(fileTokens);
+            ClosingBracketsValidation(fileTokens);
         }
 
         private void TabsAndIndentsVerification(List<Token> fileTokens)
@@ -268,6 +269,32 @@ namespace CSSFormater.Services
                 if (quotesMarksType == QuoteMarksTypes.Double && (!stringTokens[i].TokenValue.StartsWith('\"') && !stringTokens[i].TokenValue.EndsWith('\"')))
                 {
                     verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber +1, ErrorMessage = "String value should be wrapped in double quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
+                }
+            }
+        }
+
+        private void ClosingBracketsValidation(List<Token> fileTokens)
+        {
+            var alignClosingBracketsWithProperies = _configuration.Other.AlignClosingBraceWithProperties;
+
+            for(int i = 1; i < fileTokens.Count; ++i)
+            {
+                if(fileTokens[i].TokenValue == "}")
+                {
+                    if (alignClosingBracketsWithProperies)
+                    {
+                        if (fileTokens[i - 1].TokenType == TokenTypes.NewLine)
+                        {
+                            verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should insert indent before closing bracket", ErrorType = VerificationErrorTypes.ClosingBraceAligmentError });
+                        }
+                    }
+                    else
+                    {
+                        if(fileTokens[i-1].TokenType != TokenTypes.NewLine)
+                        {
+                            verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should delete indent before closing bracket", ErrorType = VerificationErrorTypes.ClosingBraceAligmentError });
+                        }
+                    }
                 }
             }
         }
