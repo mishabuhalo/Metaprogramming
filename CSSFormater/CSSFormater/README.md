@@ -5,7 +5,7 @@ Before run this formatting tool you should install dotnet core 3.1 on your machi
 [download](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ## Usage
-
+Go to project folder from cmd and write
 ```bash
 dotnet run [arguments]
 
