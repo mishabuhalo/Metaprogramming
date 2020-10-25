@@ -25,7 +25,8 @@ namespace CSSFormater.Services
             //BracesPlacementValidation(fileTokens);
             //AlignValuesValidation(fileTokens);
             //QuoteMarksValidation(fileTokens);
-            ClosingBracketsValidation(fileTokens);
+            //ClosingBracketsValidation(fileTokens);
+            SingleLineBlocksValidation(fileTokens);
         }
 
         private void TabsAndIndentsVerification(List<Token> fileTokens)
@@ -293,6 +294,39 @@ namespace CSSFormater.Services
                         if(fileTokens[i-1].TokenType != TokenTypes.NewLine)
                         {
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should delete indent before closing bracket", ErrorType = VerificationErrorTypes.ClosingBraceAligmentError });
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SingleLineBlocksValidation(List<Token> fileTokens)
+        {
+            var keepSingleLineBlocks = _configuration.Other.KeepSingleLineBlocks;
+
+            for(int i = 0; i < fileTokens.Count-1; ++i)
+            {
+                if(fileTokens[i].TokenValue == "{")
+                {
+                    var openBracketLineNumber = fileTokens[i].LineNumber +1;
+                    var openBracketIndex = i;
+                    var attributesCount = 0;
+                    i++;
+                    while(fileTokens[i].TokenValue!="}" && i < fileTokens.Count)
+                    {
+                        if (fileTokens[i].TokenValue == ":")
+                            attributesCount++;
+                        i++;
+                    }
+                    if(attributesCount == 1)
+                    {
+                        if(fileTokens[openBracketIndex+1].TokenType!=TokenTypes.NewLine && !keepSingleLineBlocks)
+                        {
+                            verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should not keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
+                        }
+                        if(fileTokens[openBracketIndex+1].TokenType==TokenTypes.NewLine && keepSingleLineBlocks)
+                        {
+                            verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
                         }
                     }
                 }
