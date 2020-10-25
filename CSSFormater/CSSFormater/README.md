@@ -11,7 +11,7 @@ dotnet run [arguments]
 
 Arguments:
 
--h, --help Show help message
+-H, --Help Show help message
 -verify -(project|directory|file) "path"  Verify file project or directory and write errors to log file
 ```
 
