@@ -15,7 +15,7 @@ namespace CSSFormater
         private int CurrentLineNumber { get; set; }
         private char CurrentCharacter { get; set; }
         private int CurrentCharacterNumber { get; set; }
-        private List<Token> Tokens { get; set; }
+        public List<Token> Tokens { get; set; }
 
         private void Init(string filePath)
         {
