@@ -14,5 +14,6 @@ namespace CSSFormater.Constants
         public const string QuoteMarksError = "Quote marks error";
         public const string SpacesError = "Spaces error";
         public const string HexColorsError = "HEX colors error";
+        public const string ClosingBraceAligmentError = "Closing brace aligment error";
     }
 }
