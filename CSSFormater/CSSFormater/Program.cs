@@ -1,4 +1,5 @@
 ﻿using CSSFormater.Exceptions;
+using CSSFormater.FormaterConfigurationModels;
 using CSSFormater.Services;
 using System;
 
@@ -9,10 +10,10 @@ namespace CSSFormater
         static void Main(string[] args)
         {
             var testFilePath = "test.css";
-
+            Configuration configuration = null;
             try
             {
-                var configuration = ConfigurationReadingService.ReadConfiguration();
+                configuration = ConfigurationReadingService.ReadConfiguration();
             }
             catch (ConfigurationConstructionException e)
             {
@@ -24,6 +25,9 @@ namespace CSSFormater
 
             lexer.Lex(testFilePath);
 
+            FormatVerificationService formatVerificationService = new FormatVerificationService(configuration);
+
+            formatVerificationService.VerifyFileTokens(lexer.Tokens);
             lexer.PrintAllTokens();
         }
     }

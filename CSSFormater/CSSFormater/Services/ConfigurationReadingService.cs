@@ -77,11 +77,6 @@ namespace CSSFormater.Services
                 throw new ConfigurationConstructionException($"Invalid configuration file. Converting hex colors format to short and long formats can't be true at one time, please set true only one of this options.");
             }
 
-            if(configuration.Arrangement.SortCssPropertiesByCustomOrder && configuration.Arrangement.SortCssPropertiesByName)
-            {
-                throw new ConfigurationConstructionException($"Invalid configuration file. Sorting CSS properties by name and custom value cant't be true at one time, please set true only one of this options.");
-            }
-
         }
 
     }

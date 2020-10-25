@@ -20,14 +20,14 @@ namespace CSSFormater.Services
         }
         public void VerifyFileTokens(List<Token> fileTokens)
         {
-            //TabsAndIndentsVerification(fileTokens);
-            //BlankLinesValidation(fileTokens);
-            //BracesPlacementValidation(fileTokens);
-            //AlignValuesValidation(fileTokens);
-            //QuoteMarksValidation(fileTokens);
-            //ClosingBracketsValidation(fileTokens);
-            //SingleLineBlocksValidation(fileTokens);
-            //SpacesValidation(fileTokens);
+            TabsAndIndentsVerification(fileTokens);
+            BlankLinesValidation(fileTokens);
+            BracesPlacementValidation(fileTokens);
+            AlignValuesValidation(fileTokens);
+            QuoteMarksValidation(fileTokens);
+            ClosingBracketsValidation(fileTokens);
+            SingleLineBlocksValidation(fileTokens);
+            SpacesValidation(fileTokens);
             HexColorsValidation(fileTokens);
         }
 
