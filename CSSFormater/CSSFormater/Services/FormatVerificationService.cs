@@ -435,7 +435,13 @@ namespace CSSFormater.Services
                 if (fileTokens[i].TokenValue == ":" && spacesAfterColon && isBracketOpened)
                 {
                     if (fileTokens[i + 1].TokenType != TokenTypes.WhiteSpace)
+                    {
+                        if(shouldFormat)
+                        {
+                            fileTokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                        }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should place space after colon", ErrorType = VerificationErrorTypes.SpaceAfterColonError });
+                    }
 
                 }
 
@@ -444,7 +450,13 @@ namespace CSSFormater.Services
                     if (fileTokens[i].TokenValue == "{" && spaceBeforeOpeningBracket)
                     {
                         if (fileTokens[i - 1].TokenType != TokenTypes.WhiteSpace)
+                        {
+                            if(shouldFormat)
+                            {
+                                fileTokens.Insert(i - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                            }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should place space before openning space", ErrorType = VerificationErrorTypes.SpaceBeforeOpeningBracketError });
+                        }
 
                     }
                 }
