@@ -13,10 +13,11 @@ Arguments:
 
 -H, --Help Show help message
 -verify -(project|directory|file) "path"  Verify file project or directory and write errors to log file
+-modify -(project|directory|file) "path"  Verify file project or directory and write errors to log file and also format files
 ```
 
 ### Usage Example
 
 ```bash
-dotnet run -verify -file "TestFiles\2.css"
+dotnet run -verify -file "TestFiles\1.css"
 ```

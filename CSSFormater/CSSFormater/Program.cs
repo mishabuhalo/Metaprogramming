@@ -261,7 +261,7 @@ namespace CSSFormater
 
         private static void PrintHelp()
         {
-            var helpMessage = "dotnet run [arguments]\nArguments:\n-h, --help Show help message\n-verify -(project|directory|file) \"path\"  Verify file project or directory and write errors to log file";
+            var helpMessage = "dotnet run [arguments]\nArguments:\n-h, --help Show help message\n-verify -(project|directory|file) \"path\"  Verify file project or directory and write errors to log file\n-modify -(project|directory|file) \"path\"  Verify file project or directory and write errors to log file and also format files";
 
             Console.WriteLine(helpMessage);
         }
