@@ -62,7 +62,7 @@ namespace CSSFormater.Services
                             var lineNumber = fileTokens[i].LineNumber + 1;
                             var currentIndent = 0;
                             var tabsCount = 0;
-                            while (fileTokens[i].TokenType == TokenTypes.Tab || fileTokens[i].TokenType == TokenTypes.WhiteSpace && i < fileTokens.Count)
+                            while (fileTokens[i].TokenType == TokenTypes.Tab || fileTokens[i].TokenType == TokenTypes.WhiteSpace && i < fileTokens.Count-1)
                             {
                                 if (fileTokens[i].TokenType == TokenTypes.Tab)
                                 {
@@ -82,6 +82,10 @@ namespace CSSFormater.Services
                                 {
                                     if (fileTokens[i].TokenValue.Length == tabSize && useSmartTabs)
                                     {
+                                        if(shouldFormat)
+                                        {
+                                            fileTokens[i].TokenType = TokenTypes.Tab;
+                                        }
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Here should be tab instead of {tabSize} white spaces", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                                     }
                                     currentIndent += fileTokens[i].TokenValue.Length;
@@ -98,17 +102,33 @@ namespace CSSFormater.Services
                             }
                             else if (currentIndent > indentSize)
                             {
+                                if(shouldFormat)
+                                {
+                                    fileTokens[i - 1].TokenValue = new string(' ', indentSize);
+                                    fileTokens[i - 1].TokenType = TokenTypes.WhiteSpace;
+                                    
+                                }
                                 verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is bigger then should be on {currentIndent - indentSize}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                             }
                             else
                             {
-                                verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is less then should be on {indentSize - currentIndent}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
+                                if (shouldFormat)
+                                {
+                                    fileTokens[i - 1].TokenValue = new string(' ', indentSize);
+                                    fileTokens[i - 1].TokenType = TokenTypes.WhiteSpace;
+                                }
+                                    verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is less then should be on {indentSize - currentIndent}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                             }
 
                             if (fileTokens[i].TokenType == TokenTypes.NewLine)
                             {
                                 if (!keepIndentsOnEmptyLines)
                                 {
+                                    if (shouldFormat)
+                                    {
+                                        fileTokens.RemoveAt(i - 1);
+                                        i--;
+                                    }
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = "You should not keep indentes on empty lines", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                                 }
                             }
