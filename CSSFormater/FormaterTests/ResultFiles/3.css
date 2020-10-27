@@ -1,0 +1,17 @@
+body {
+	color     : #000;
+	background : #fff url(body-bg.png);
+	margin    : 0px auto;
+}
+
+p {
+	font      : 12px/15px georgia, serif;
+	text-align : justify;
+	margin-top : 0;
+}
+
+a:link {
+	font-weight    : bold;
+	text-decoration : none;
+	color          : #000;
+}
