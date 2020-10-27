@@ -399,10 +399,19 @@ namespace CSSFormater.Services
                     {
                         if (fileTokens[openBracketIndex + 1].TokenType != TokenTypes.NewLine && !keepSingleLineBlocks)
                         {
+                            if(shouldFormat)
+                            {
+                                fileTokens.Insert(openBracketIndex + 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                            }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should not keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
                         }
                         if (fileTokens[openBracketIndex + 1].TokenType == TokenTypes.NewLine && keepSingleLineBlocks)
                         {
+                            if(shouldFormat)
+                            {
+                                fileTokens.RemoveAt(i - 1);
+                                i--;
+                            }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
                         }
                     }
