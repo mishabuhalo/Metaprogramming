@@ -54,7 +54,7 @@ namespace CSSFormater.Services
                 if (fileTokens[i].TokenValue == "{")
                 {
                     i++;
-                    while (i < fileTokens.Count -2 && fileTokens[i + 1].TokenValue != "}")
+                    while (i < fileTokens.Count - 2 && fileTokens[i + 1].TokenValue != "}")
                     {
                         if (fileTokens[i].TokenType == TokenTypes.NewLine)
                         {
@@ -62,13 +62,13 @@ namespace CSSFormater.Services
                             var lineNumber = fileTokens[i].LineNumber + 1;
                             var currentIndent = 0;
                             var tabsCount = 0;
-                            while (fileTokens[i].TokenType == TokenTypes.Tab || fileTokens[i].TokenType == TokenTypes.WhiteSpace && i < fileTokens.Count-1)
+                            while (fileTokens[i].TokenType == TokenTypes.Tab || fileTokens[i].TokenType == TokenTypes.WhiteSpace && i < fileTokens.Count - 1)
                             {
                                 if (fileTokens[i].TokenType == TokenTypes.Tab)
                                 {
                                     if (!useTabCharacter)
                                     {
-                                        if(shouldFormat)
+                                        if (shouldFormat)
                                         {
                                             fileTokens[i].TokenType = TokenTypes.WhiteSpace;
                                             fileTokens[i].TokenValue = new string(' ', tabSize);
@@ -82,7 +82,7 @@ namespace CSSFormater.Services
                                 {
                                     if (fileTokens[i].TokenValue.Length == tabSize && useSmartTabs)
                                     {
-                                        if(shouldFormat)
+                                        if (shouldFormat)
                                         {
                                             fileTokens[i].TokenType = TokenTypes.Tab;
                                         }
@@ -102,11 +102,11 @@ namespace CSSFormater.Services
                             }
                             else if (currentIndent > indentSize)
                             {
-                                if(shouldFormat)
+                                if (shouldFormat)
                                 {
                                     fileTokens[i - 1].TokenValue = new string(' ', indentSize);
                                     fileTokens[i - 1].TokenType = TokenTypes.WhiteSpace;
-                                    
+
                                 }
                                 verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is bigger then should be on {currentIndent - indentSize}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                             }
@@ -117,7 +117,7 @@ namespace CSSFormater.Services
                                     fileTokens[i - 1].TokenValue = new string(' ', indentSize);
                                     fileTokens[i - 1].TokenType = TokenTypes.WhiteSpace;
                                 }
-                                    verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is less then should be on {indentSize - currentIndent}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
+                                verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is less then should be on {indentSize - currentIndent}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                             }
 
                             if (fileTokens[i].TokenType == TokenTypes.NewLine)
@@ -150,14 +150,20 @@ namespace CSSFormater.Services
             var lastIndexOfClosingBracket = fileTokens.LastIndexOf(lastClosedBracketToken);
 
             var countOfNextEmptyLines = 0;
-            for (int i = lastIndexOfClosingBracket; i < fileTokens.Count-1; ++i)
+            for (int i = lastIndexOfClosingBracket; i < fileTokens.Count - 1; ++i)
             {
                 if (fileTokens[i].TokenType == TokenTypes.NewLine)
                     countOfNextEmptyLines++;
             }
             if (maximumBlankLinesInCode < countOfNextEmptyLines - 1)
+            {
+                if (shouldFormat)
+                {
+                    var countOfEmptyLinesToDelete = countOfNextEmptyLines - maximumBlankLinesInCode;
+                    fileTokens.RemoveRange(lastIndexOfClosingBracket + 1, countOfNextEmptyLines);
+                }
                 verificationErrors.Add(new VerificationError { ErrorLineNumber = lastClosedBracketToken.LineNumber + 1, ErrorMessage = $"You exceeded the limit of extra blank lines to be kept on {countOfNextEmptyLines - maximumBlankLinesInCode}.", ErrorType = VerificationErrorTypes.BlankLinesError });
-
+            }
             var j = 0;
             for (; j < fileTokens.Count - 1; ++j)
             {
@@ -166,7 +172,7 @@ namespace CSSFormater.Services
                     j++;
                     var lineNumber = fileTokens[j + 1].LineNumber;
                     var currentBlankLinesCount = 0;
-                    while (fileTokens[j].TokenValue != "{" && j < fileTokens.Count-1)
+                    while (fileTokens[j].TokenValue != "{" && j < fileTokens.Count - 1)
                     {
                         if (fileTokens[j].TokenType == TokenTypes.NewLine)
                         {
@@ -176,7 +182,14 @@ namespace CSSFormater.Services
                     }
 
                     if (currentBlankLinesCount - 1 < minimumBlankLinesAroundTopLevelBlocks)
+                    {
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"You ddid not reach the minimum number of blank lines around top level blocks on {minimumBlankLinesAroundTopLevelBlocks - currentBlankLinesCount + 1}.", ErrorType = VerificationErrorTypes.BlankLinesError });
+                        if(shouldFormat)
+                        {
+                            for (int k = 0; k < minimumBlankLinesAroundTopLevelBlocks - currentBlankLinesCount; k++)
+                                fileTokens.Insert(j + 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                        }
+                    }
                 }
             }
         }
@@ -185,7 +198,7 @@ namespace CSSFormater.Services
         {
             var bracesPlacementType = _configuration.Other.BracesPlacement;
 
-            for (int i = 1; i < fileTokens.Count-1; ++i)
+            for (int i = 1; i < fileTokens.Count - 1; ++i)
             {
                 if (fileTokens[i].TokenValue == "{")
                 {
@@ -264,13 +277,13 @@ namespace CSSFormater.Services
                                 }
                                 else
                                 {
-                                    if(fileTokens[i+1].TokenValue.Length >1 && _configuration.Other.Spaces.AfterColon)
+                                    if (fileTokens[i + 1].TokenValue.Length > 1 && _configuration.Other.Spaces.AfterColon)
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
 
                                     identifierPosition = fileTokens[i + 2].Position;
                                 }
 
-                                if(fileTokens[i-1].TokenType!= TokenTypes.WhiteSpace)
+                                if (fileTokens[i - 1].TokenType != TokenTypes.WhiteSpace)
                                 {
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be at least one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                 }
@@ -294,16 +307,16 @@ namespace CSSFormater.Services
         {
             var stringTokens = fileTokens.Where(token => token.TokenType == TokenTypes.String).ToList();
             var quotesMarksType = _configuration.Other.QuoteMarks;
-            for(int i = 0; i < stringTokens.Count; ++i)
+            for (int i = 0; i < stringTokens.Count; ++i)
             {
-                if(quotesMarksType == QuoteMarksTypes.Single && (!stringTokens[i].TokenValue.StartsWith('\'') && !stringTokens[i].TokenValue.EndsWith('\'')))
+                if (quotesMarksType == QuoteMarksTypes.Single && (!stringTokens[i].TokenValue.StartsWith('\'') && !stringTokens[i].TokenValue.EndsWith('\'')))
                 {
-                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber +1, ErrorMessage = "String value should be wrapped in single quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
+                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in single quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
                 }
 
                 if (quotesMarksType == QuoteMarksTypes.Double && (!stringTokens[i].TokenValue.StartsWith('\"') && !stringTokens[i].TokenValue.EndsWith('\"')))
                 {
-                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber +1, ErrorMessage = "String value should be wrapped in double quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
+                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in double quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
                 }
             }
         }
@@ -312,9 +325,9 @@ namespace CSSFormater.Services
         {
             var alignClosingBracketsWithProperies = _configuration.Other.AlignClosingBraceWithProperties;
 
-            for(int i = 1; i < fileTokens.Count; ++i)
+            for (int i = 1; i < fileTokens.Count; ++i)
             {
-                if(fileTokens[i].TokenValue == "}" )
+                if (fileTokens[i].TokenValue == "}")
                 {
                     if (alignClosingBracketsWithProperies)
                     {
@@ -325,7 +338,7 @@ namespace CSSFormater.Services
                     }
                     else
                     {
-                        if(fileTokens[i-1].TokenType != TokenTypes.NewLine)
+                        if (fileTokens[i - 1].TokenType != TokenTypes.NewLine)
                         {
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should delete indent before closing bracket", ErrorType = VerificationErrorTypes.ClosingBraceAligmentError });
                         }
@@ -338,27 +351,27 @@ namespace CSSFormater.Services
         {
             var keepSingleLineBlocks = _configuration.Other.KeepSingleLineBlocks;
 
-            for(int i = 0; i < fileTokens.Count-1; ++i)
+            for (int i = 0; i < fileTokens.Count - 1; ++i)
             {
-                if(fileTokens[i].TokenValue == "{")
+                if (fileTokens[i].TokenValue == "{")
                 {
-                    var openBracketLineNumber = fileTokens[i].LineNumber +1;
+                    var openBracketLineNumber = fileTokens[i].LineNumber + 1;
                     var openBracketIndex = i;
                     var attributesCount = 0;
                     i++;
-                    while(fileTokens[i].TokenValue!="}" && i < fileTokens.Count)
+                    while (fileTokens[i].TokenValue != "}" && i < fileTokens.Count)
                     {
                         if (fileTokens[i].TokenValue == ":")
                             attributesCount++;
                         i++;
                     }
-                    if(attributesCount == 1)
+                    if (attributesCount == 1)
                     {
-                        if(fileTokens[openBracketIndex+1].TokenType!=TokenTypes.NewLine && !keepSingleLineBlocks)
+                        if (fileTokens[openBracketIndex + 1].TokenType != TokenTypes.NewLine && !keepSingleLineBlocks)
                         {
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should not keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
                         }
-                        if(fileTokens[openBracketIndex+1].TokenType==TokenTypes.NewLine && keepSingleLineBlocks)
+                        if (fileTokens[openBracketIndex + 1].TokenType == TokenTypes.NewLine && keepSingleLineBlocks)
                         {
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
                         }
@@ -371,8 +384,8 @@ namespace CSSFormater.Services
         {
             var spacesAfterColon = _configuration.Other.Spaces.AfterColon;
             var spaceBeforeOpeningBracket = _configuration.Other.Spaces.BeforeOpeningBrace;
-            bool isBracketOpened = false; 
-            for(int i = 0; i < fileTokens.Count-1; ++i)
+            bool isBracketOpened = false;
+            for (int i = 0; i < fileTokens.Count - 1; ++i)
             {
                 if (fileTokens[i].TokenValue == "{")
                     isBracketOpened = true;
@@ -398,14 +411,14 @@ namespace CSSFormater.Services
                 }
             }
         }
-        
+
         private void HexColorsValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var hexColorLowerCase = _configuration.Other.HexColors.ConvertHexColorsToLowerCase;
             var hexColorsLongFormat = _configuration.Other.HexColors.ConvertHexColorsFormatToLongFormat;
             bool isBracketOpened = false;
 
-            for(int i = 0; i < fileTokens.Count -1; ++i)
+            for (int i = 0; i < fileTokens.Count - 1; ++i)
             {
                 if (fileTokens[i].TokenValue == "{")
                     isBracketOpened = true;
@@ -413,15 +426,15 @@ namespace CSSFormater.Services
                 else if (fileTokens[i].TokenValue == "}")
                     isBracketOpened = false;
 
-                if(fileTokens[i].TokenValue == "#" && isBracketOpened)
+                if (fileTokens[i].TokenValue == "#" && isBracketOpened)
                 {
                     var hexColor = fileTokens[i + 1].TokenValue;
                     if (hexColor.Length == 6 && !hexColorsLongFormat)
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in short format", ErrorType = VerificationErrorTypes.HexColorFormatError });
-                    else if(hexColor.Length == 3 && hexColorsLongFormat)
+                    else if (hexColor.Length == 3 && hexColorsLongFormat)
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in long format", ErrorType = VerificationErrorTypes.HexColorFormatError });
 
-                    if(hexColorLowerCase && !IsStringInLowerCase(hexColor))
+                    if (hexColorLowerCase && !IsStringInLowerCase(hexColor))
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in lower case", ErrorType = VerificationErrorTypes.HexColorCaseError });
 
                     else if (!hexColorLowerCase && !IsStringInUpperCase(hexColor))
@@ -466,7 +479,7 @@ namespace CSSFormater.Services
 
         private bool IsStringInLowerCase(string value)
         {
-            for(int i = 0; i< value.Length; ++i)
+            for (int i = 0; i < value.Length; ++i)
             {
                 if (!Char.IsLower(value[i]))
                     return false;
