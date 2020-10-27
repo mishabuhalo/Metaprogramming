@@ -105,7 +105,7 @@ namespace CSSFormater
         {
             var currentCharacter = this.CurrentCharacter;
 
-            if (currentCharacter=='-' || currentCharacter =='.' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
+            if (currentCharacter=='-' || IsDigit(currentCharacter)) // for cases when -1px or 1.32 etc
             {
                 NumberHandling();
                 return;
@@ -341,7 +341,7 @@ namespace CSSFormater
                  IdentifierHandling('-');
             }
 
-            while(currentCharacter!='\0' &&(IsDigit(currentCharacter)||(!IsPoint&& currentCharacter == '.')))
+            while(currentCharacter!='\0' &&(IsDigit(currentCharacter)||(!IsPoint && currentCharacter == '.')))
             {
                 if(currentCharacter == '.')
                 {
