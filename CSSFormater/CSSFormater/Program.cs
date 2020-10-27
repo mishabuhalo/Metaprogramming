@@ -33,6 +33,7 @@ namespace CSSFormater
                             {
                                 var projectPath = arguments[i + 2];
                                 HandleProjectVerification(projectPath);
+                                PrintSuccessVerifiactionMesssage();
                             }
                             else
                             {
@@ -40,12 +41,14 @@ namespace CSSFormater
                                 return;
                             }
                         }
-                        else if(arguments[i+i] == "-directory")
+                        else if(arguments[i+1] == "-directory")
                         {
                             if (i + 2 < arguments.Length)
                             {
                                 var directoryPath = arguments[i + 2];
                                 HandleDirectoryVerification(directoryPath);
+                                PrintSuccessVerifiactionMesssage();
+                                return;
                             }
                             else
                             {
@@ -59,6 +62,7 @@ namespace CSSFormater
                             {
                                 var filePath = arguments[i + 2];
                                 HandleFileVerification(filePath);
+                                PrintSuccessVerifiactionMesssage();
                             }
                             else
                             {
@@ -78,7 +82,18 @@ namespace CSSFormater
                         return;
                     }
                 }
+                else
+                {
+                    PrintErrorParametersMessage();
+                    return;
+                }
             }
+
+        }
+
+        private static void PrintSuccessVerifiactionMesssage()
+        {
+            Console.WriteLine("Verification completed, all verification errors has been written to file error.log in project folder");
         }
 
         private static void HandleFileVerification(string filePath)
@@ -130,12 +145,35 @@ namespace CSSFormater
 
         private static void HandleDirectoryVerification(string directoryPath)
         {
-            throw new NotImplementedException();
+            if (!Directory.Exists(directoryPath))
+            {
+                Console.WriteLine($"Directory {directoryPath} does not exist.");
+                return;
+            }
+
+            var filePaths = Directory.GetFiles(directoryPath, "*.css");
+
+            for (int i = 0; i < filePaths.Length; ++i)
+            {
+                HandleFileVerification(filePaths[i]);
+            }
+           
         }
 
         private static void HandleProjectVerification(string projectPath)
         {
-            throw new NotImplementedException();
+            if (!Directory.Exists(projectPath))
+            {
+                Console.WriteLine($"Project directory {projectPath} does not exist.");
+                return;
+            }
+
+            var filePaths = Directory.GetFiles(projectPath, "*.css", SearchOption.AllDirectories);
+
+            for (int i = 0; i < filePaths.Length; ++i)
+            {
+                HandleFileVerification(filePaths[i]);
+            }
         }
 
 
