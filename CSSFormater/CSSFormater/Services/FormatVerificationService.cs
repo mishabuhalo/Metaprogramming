@@ -354,6 +354,10 @@ namespace CSSFormater.Services
                     {
                         if (fileTokens[i - 1].TokenType == TokenTypes.NewLine)
                         {
+                            if(shouldFormat)
+                            {
+                                fileTokens.Insert(i - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue =  new string(' ', _configuration.TabsAndIndents.Indent) });
+                            }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should insert indent before closing bracket", ErrorType = VerificationErrorTypes.ClosingBraceAligmentError });
                         }
                     }
@@ -361,6 +365,11 @@ namespace CSSFormater.Services
                     {
                         if (fileTokens[i - 1].TokenType != TokenTypes.NewLine)
                         {
+                            if(shouldFormat)
+                            {
+                                fileTokens.RemoveAt(i - 1);
+                                i--;
+                            }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should delete indent before closing bracket", ErrorType = VerificationErrorTypes.ClosingBraceAligmentError });
                         }
                     }
