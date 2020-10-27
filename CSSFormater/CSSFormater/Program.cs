@@ -82,6 +82,65 @@ namespace CSSFormater
                         return;
                     }
                 }
+                if(arguments[i] == "-format")
+                {
+                    if (i + 1 < arguments.Length)
+                    {
+                        if (arguments[i + 1] == "-project")
+                        {
+                            if (i + 2 < arguments.Length)
+                            {
+                                var projectPath = arguments[i + 2];
+                                HandleProjectVerification(projectPath, true);
+                                PrintSuccessVerifiactionMesssage();
+                            }
+                            else
+                            {
+                                PrintErrorParametersMessage();
+                                return;
+                            }
+                        }
+                        else if (arguments[i + 1] == "-directory")
+                        {
+                            if (i + 2 < arguments.Length)
+                            {
+                                var directoryPath = arguments[i + 2];
+                                HandleDirectoryVerification(directoryPath, true);
+                                PrintSuccessVerifiactionMesssage();
+                                return;
+                            }
+                            else
+                            {
+                                PrintErrorParametersMessage();
+                                return;
+                            }
+                        }
+                        else if (arguments[i + 1] == "-file")
+                        {
+                            if (i + 2 < arguments.Length)
+                            {
+                                var filePath = arguments[i + 2];
+                                HandleFileVerification(filePath, true);
+                                PrintSuccessVerifiactionMesssage();
+                            }
+                            else
+                            {
+                                PrintErrorParametersMessage();
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            PrintErrorParametersMessage();
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        PrintErrorParametersMessage();
+                        return;
+                    }
+                }
                 else
                 {
                     PrintErrorParametersMessage();
@@ -96,7 +155,7 @@ namespace CSSFormater
             Console.WriteLine("Verification completed, all verification errors has been written to file error.log in project folder");
         }
 
-        private static void HandleFileVerification(string filePath)
+        private static void HandleFileVerification(string filePath, bool shouldFormat = false)
         {
             Configuration configuration = null;
             try
@@ -114,7 +173,7 @@ namespace CSSFormater
             var tokens = lexer.GetTokens();
             FormatVerificationService formatVerificationService = new FormatVerificationService(configuration);
 
-            formatVerificationService.VerifyFileTokens(tokens);
+            formatVerificationService.VerifyFileTokens(tokens, shouldFormat);
 
             var verificationErrors = formatVerificationService.GetVerificationErrors();
 
@@ -143,7 +202,7 @@ namespace CSSFormater
             }
         }
 
-        private static void HandleDirectoryVerification(string directoryPath)
+        private static void HandleDirectoryVerification(string directoryPath, bool shouldFormat = false)
         {
             if (!Directory.Exists(directoryPath))
             {
@@ -155,12 +214,12 @@ namespace CSSFormater
 
             for (int i = 0; i < filePaths.Length; ++i)
             {
-                HandleFileVerification(filePaths[i]);
+                HandleFileVerification(filePaths[i], shouldFormat);
             }
            
         }
 
-        private static void HandleProjectVerification(string projectPath)
+        private static void HandleProjectVerification(string projectPath, bool shouldFormat = false)
         {
             if (!Directory.Exists(projectPath))
             {
@@ -172,7 +231,7 @@ namespace CSSFormater
 
             for (int i = 0; i < filePaths.Length; ++i)
             {
-                HandleFileVerification(filePaths[i]);
+                HandleFileVerification(filePaths[i], shouldFormat);
             }
         }
 

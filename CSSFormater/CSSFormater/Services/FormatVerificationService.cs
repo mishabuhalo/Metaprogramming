@@ -20,15 +20,15 @@ namespace CSSFormater.Services
         }
         public void VerifyFileTokens(List<Token> fileTokens, bool shouldFormat = false)
         {
-            TabsAndIndentsVerification(fileTokens);
-            BlankLinesValidation(fileTokens);
-            BracesPlacementValidation(fileTokens);
-            AlignValuesValidation(fileTokens);
-            QuoteMarksValidation(fileTokens);
-            ClosingBracketsValidation(fileTokens);
-            SingleLineBlocksValidation(fileTokens);
-            SpacesValidation(fileTokens);
-            HexColorsValidation(fileTokens);
+            TabsAndIndentsVerification(fileTokens, shouldFormat);
+            BlankLinesValidation(fileTokens, shouldFormat);
+            BracesPlacementValidation(fileTokens, shouldFormat);
+            AlignValuesValidation(fileTokens, shouldFormat);
+            QuoteMarksValidation(fileTokens, shouldFormat);
+            ClosingBracketsValidation(fileTokens, shouldFormat);
+            SingleLineBlocksValidation(fileTokens, shouldFormat);
+            SpacesValidation(fileTokens, shouldFormat);
+            HexColorsValidation(fileTokens, shouldFormat);
 
             verificationErrors = verificationErrors.OrderBy(x => x.ErrorLineNumber).ToList();
         }
@@ -68,6 +68,11 @@ namespace CSSFormater.Services
                                 {
                                     if (!useTabCharacter)
                                     {
+                                        if(shouldFormat)
+                                        {
+                                            fileTokens[i].TokenType = TokenTypes.WhiteSpace;
+                                            fileTokens[i].TokenValue = new string(' ', tabSize);
+                                        }
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = "You should use white spaces instead of tabs.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                                     }
                                     currentIndent += tabSize;
