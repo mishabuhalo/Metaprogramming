@@ -481,16 +481,30 @@ namespace CSSFormater.Services
                 {
                     var hexColor = fileTokens[i + 1].TokenValue;
                     if (hexColor.Length == 6 && !hexColorsLongFormat)
+                    {
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in short format", ErrorType = VerificationErrorTypes.HexColorFormatError });
+                    }
                     else if (hexColor.Length == 3 && hexColorsLongFormat)
+                    {
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in long format", ErrorType = VerificationErrorTypes.HexColorFormatError });
+                    }
 
                     if (hexColorLowerCase && !IsStringInLowerCase(hexColor))
+                    {
+                        if(shouldFormat)
+                        {
+                            fileTokens[i].TokenValue.ToLower();
+                        }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in lower case", ErrorType = VerificationErrorTypes.HexColorCaseError });
-
+                    }
                     else if (!hexColorLowerCase && !IsStringInUpperCase(hexColor))
+                    {
+                        if(shouldFormat)
+                        {
+                            fileTokens[i].TokenValue.ToUpper();
+                        }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in upper case", ErrorType = VerificationErrorTypes.HexColorCaseError });
-
+                    }
                 }
             }
         }
