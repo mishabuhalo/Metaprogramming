@@ -18,7 +18,7 @@ namespace CSSFormater.Services
             _configuration = configuration;
             verificationErrors = new List<VerificationError>();
         }
-        public void VerifyFileTokens(List<Token> fileTokens)
+        public void VerifyFileTokens(List<Token> fileTokens, bool shouldFormat = false)
         {
             TabsAndIndentsVerification(fileTokens);
             BlankLinesValidation(fileTokens);
@@ -38,7 +38,7 @@ namespace CSSFormater.Services
             return verificationErrors;
         }
 
-        private void TabsAndIndentsVerification(List<Token> fileTokens)
+        private void TabsAndIndentsVerification(List<Token> fileTokens, bool shouldFormat = false)
         {
             int i = 0;
             var useTabCharacter = _configuration.TabsAndIndents.UseTabCharacter;
@@ -115,7 +115,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void BlankLinesValidation(List<Token> fileTokens)
+        private void BlankLinesValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var maximumBlankLinesInCode = _configuration.BlankLines.MaximumBlankLinesInCode;
             var minimumBlankLinesAroundTopLevelBlocks = _configuration.BlankLines.MinimumBlankLinesAroundTopLevelBlock;
@@ -156,7 +156,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void BracesPlacementValidation(List<Token> fileTokens)
+        private void BracesPlacementValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var bracesPlacementType = _configuration.Other.BracesPlacement;
 
@@ -172,7 +172,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void AlignValuesValidation(List<Token> fileTokens)
+        private void AlignValuesValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var alignValuesType = _configuration.Other.AlignValues;
 
@@ -265,7 +265,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void QuoteMarksValidation(List<Token> fileTokens)
+        private void QuoteMarksValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var stringTokens = fileTokens.Where(token => token.TokenType == TokenTypes.String).ToList();
             var quotesMarksType = _configuration.Other.QuoteMarks;
@@ -283,7 +283,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void ClosingBracketsValidation(List<Token> fileTokens)
+        private void ClosingBracketsValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var alignClosingBracketsWithProperies = _configuration.Other.AlignClosingBraceWithProperties;
 
@@ -309,7 +309,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void SingleLineBlocksValidation(List<Token> fileTokens)
+        private void SingleLineBlocksValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var keepSingleLineBlocks = _configuration.Other.KeepSingleLineBlocks;
 
@@ -342,7 +342,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void SpacesValidation(List<Token> fileTokens)
+        private void SpacesValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var spacesAfterColon = _configuration.Other.Spaces.AfterColon;
             var spaceBeforeOpeningBracket = _configuration.Other.Spaces.BeforeOpeningBrace;
@@ -374,7 +374,7 @@ namespace CSSFormater.Services
             }
         }
         
-        private void HexColorsValidation(List<Token> fileTokens)
+        private void HexColorsValidation(List<Token> fileTokens, bool shouldFormat = false)
         {
             var hexColorLowerCase = _configuration.Other.HexColors.ConvertHexColorsToLowerCase;
             var hexColorsLongFormat = _configuration.Other.HexColors.ConvertHexColorsFormatToLongFormat;
