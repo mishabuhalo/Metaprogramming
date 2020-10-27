@@ -324,11 +324,19 @@ namespace CSSFormater.Services
             {
                 if (quotesMarksType == QuoteMarksTypes.Single && (!stringTokens[i].TokenValue.StartsWith('\'') && !stringTokens[i].TokenValue.EndsWith('\'')))
                 {
+                    if(shouldFormat)
+                    {
+                        fileTokens[i].TokenValue.Replace('\"', '\'');
+                    }
                     verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in single quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
                 }
 
                 if (quotesMarksType == QuoteMarksTypes.Double && (!stringTokens[i].TokenValue.StartsWith('\"') && !stringTokens[i].TokenValue.EndsWith('\"')))
                 {
+                    if (shouldFormat)
+                    {
+                        fileTokens[i].TokenValue.Replace('\'', '\"');
+                    }
                     verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in double quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
                 }
             }
