@@ -125,7 +125,7 @@ namespace CSSFormater.Services
             var lastIndexOfClosingBracket = fileTokens.LastIndexOf(lastClosedBracketToken);
 
             var countOfNextEmptyLines = 0;
-            for (int i = lastIndexOfClosingBracket; i < fileTokens.Count; ++i)
+            for (int i = lastIndexOfClosingBracket; i < fileTokens.Count-1; ++i)
             {
                 if (fileTokens[i].TokenType == TokenTypes.NewLine)
                     countOfNextEmptyLines++;
@@ -141,7 +141,7 @@ namespace CSSFormater.Services
                     j++;
                     var lineNumber = fileTokens[j + 1].LineNumber;
                     var currentBlankLinesCount = 0;
-                    while (fileTokens[j].TokenValue != "{" && j < fileTokens.Count)
+                    while (fileTokens[j].TokenValue != "{" && j < fileTokens.Count-1)
                     {
                         if (fileTokens[j].TokenType == TokenTypes.NewLine)
                         {
@@ -160,7 +160,7 @@ namespace CSSFormater.Services
         {
             var bracesPlacementType = _configuration.Other.BracesPlacement;
 
-            for (int i = 1; i < fileTokens.Count; ++i)
+            for (int i = 1; i < fileTokens.Count-1; ++i)
             {
                 if (fileTokens[i].TokenValue == "{")
                 {
