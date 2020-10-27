@@ -207,13 +207,9 @@ namespace CSSFormater
 
             if(shouldFormat)
             {
-                using (StreamWriter streamWriter = File.CreateText("testFormated.css"))
+                using (StreamWriter streamWriter = File.CreateText(filePath))
                 {
                     var formatedTokens = formatVerificationService.GetFormatedTokens();
-                    var test = new FormatVerificationService(configuration, formatedTokens);
-                    test.VerifyTokens();
-                    var temp = test.GetVerificationErrors();
-                    
                     for(int i = 0; i <formatedTokens.Count; ++i)
                     {
                         
