@@ -22,7 +22,6 @@ namespace CSSFormater.Services
         }
         public void VerifyTokens(bool shouldFormat = false)
         {
-            TabsAndIndentsVerification(shouldFormat);
             BlankLinesValidation(shouldFormat);
             AlignValuesValidation(shouldFormat);
             QuoteMarksValidation(shouldFormat);
@@ -31,6 +30,7 @@ namespace CSSFormater.Services
             BracesPlacementValidation(shouldFormat);
             SpacesValidation(shouldFormat);
             HexColorsValidation(shouldFormat);
+            TabsAndIndentsVerification(shouldFormat);
 
             verificationErrors = verificationErrors.OrderBy(x => x.ErrorLineNumber).ToList();
         }
