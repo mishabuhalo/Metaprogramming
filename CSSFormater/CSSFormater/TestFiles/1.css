@@ -1,11 +1,9 @@
-html{ margin: 0; }
-body{
-	font:75% georgia, sans-serif;
-	line-height :   1.88889;
-	color  : #555753;
-	background :    #FFF url("sad") no-repeat bottom right;
-	margin   :     0;
-	padding:'ssds';
+body {
+	background : black;
+	color      : #80c0c0
+}
+p:first-line {
+	margin-left : 25px
 }
 
 
