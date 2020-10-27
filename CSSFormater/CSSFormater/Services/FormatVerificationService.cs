@@ -247,12 +247,22 @@ namespace CSSFormater.Services
                             {
                                 if (_tokens[i + 1].TokenType != TokenTypes.WhiteSpace && _configuration.Other.Spaces.AfterColon)
                                 {
+                                    if(shouldFormat)
+                                    {
+                                        _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                    }
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be a white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                 }
                                 else
                                 {
                                     if (_tokens[i + 1].TokenValue.Length != 1 && _configuration.Other.Spaces.AfterColon)
+                                    {
+                                        if(shouldFormat)
+                                        {
+                                            _tokens[i + 1].TokenValue.Substring(1);
+                                        }
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
+                                    }
 
                                 }
                             }
@@ -267,6 +277,11 @@ namespace CSSFormater.Services
 
                                         var message = $"Between ':' and attribute value must be more on {offset} white spaces!";
 
+                                        if(shouldFormat)
+                                        {
+                                            _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset) });
+                                        }
+
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = message, ErrorType = VerificationErrorTypes.AlignValuesError });
 
                                     }
@@ -277,6 +292,10 @@ namespace CSSFormater.Services
                                     {
                                         var offset = maxStartIndex - _tokens[i + 2].Position;
                                         var message = $"Between ':' and attribute value must be more on {offset} white spaces!";
+                                        if(shouldFormat)
+                                        {
+                                            _tokens.Insert(i + 2, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset) });
+                                        }
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = message, ErrorType = VerificationErrorTypes.AlignValuesError });
 
                                     }
@@ -285,21 +304,39 @@ namespace CSSFormater.Services
                             if (alignValuesType == AlignValuesTypes.OnColon)
                             {
                                 int identifierPosition = 0;
+                                var identifireIndex = 0;
                                 if (_tokens[i + 1].TokenType != TokenTypes.WhiteSpace && _configuration.Other.Spaces.AfterColon)
                                 {
+                                    if (shouldFormat)
+                                    {
+                                        _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                    }
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be a white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                     identifierPosition = _tokens[i + 1].Position;
+                                    identifireIndex = i + 1;
                                 }
                                 else
                                 {
                                     if (_tokens[i + 1].TokenValue.Length > 1 && _configuration.Other.Spaces.AfterColon)
-                                        verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
+                                    {
+                                        if (shouldFormat)
+                                        {
+                                            _tokens[i + 1].TokenValue.Substring(1);
+                                        }
 
+                                        verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
+                                    }
                                     identifierPosition = _tokens[i + 2].Position;
+                                    identifireIndex = i + 2;
                                 }
 
                                 if (_tokens[i - 1].TokenType != TokenTypes.WhiteSpace)
                                 {
+                                    if (shouldFormat)
+                                    {
+                                        _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                        i++;
+                                    }
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be at least one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                 }
 
@@ -307,6 +344,11 @@ namespace CSSFormater.Services
                                 {
                                     var offset = maxStartIndex - identifierPosition;
                                     var message = $"Between attribute and ':' must be more on {offset} white spaces!";
+
+                                    if (shouldFormat)
+                                    {
+                                        _tokens.Insert(identifireIndex - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset) });
+                                    }
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = message, ErrorType = VerificationErrorTypes.AlignValuesError });
                                 }
 
