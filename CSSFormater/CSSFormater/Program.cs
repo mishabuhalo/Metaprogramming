@@ -171,9 +171,9 @@ namespace CSSFormater
             Lexer lexer = new Lexer();
             lexer.Lex(filePath);
             var tokens = lexer.GetTokens();
-            FormatVerificationService formatVerificationService = new FormatVerificationService(configuration);
+            FormatVerificationService formatVerificationService = new FormatVerificationService(configuration, tokens);
 
-            formatVerificationService.VerifyFileTokens(tokens, shouldFormat);
+            formatVerificationService.VerifyTokens(shouldFormat);
 
             var verificationErrors = formatVerificationService.GetVerificationErrors();
 
