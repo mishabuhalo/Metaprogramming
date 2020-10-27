@@ -148,7 +148,7 @@ namespace CSSFormater
 
             if (currentCharacter == '\n' || currentCharacter == '\r')
             {
-                CreateAndAddToken("line", TokenTypes.NewLine, this.CurrentLineNumber, this.CurrentCharacterNumber);
+                CreateAndAddToken("\n", TokenTypes.NewLine, this.CurrentLineNumber, this.CurrentCharacterNumber);
                 this.NextCharacter();
                 return;
             }

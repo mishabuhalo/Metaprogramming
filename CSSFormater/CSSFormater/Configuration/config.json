@@ -5,27 +5,27 @@
     "TabSize": 4,
     "Indent": 4,
     "ContinuationIndent": 8,
-    "KeepIndentsOnEmtyLines": true
+    "KeepIndentsOnEmtyLines": false
   },
   "BlankLines": {
-    "MaximumBlankLinesInCode": 1,
+    "MaximumBlankLinesInCode": 2,
     "MinimumBlankLinesAroundTopLevelBlock": 1,
     "MinimumBlankLinesAroundNestedSelector": 5
   },
   "Other": {
     "BracesPlacement": "End of line",
-    "AlignValues": "Do not align",
-    "QuoteMarks": "Double",
+    "AlignValues": "On colon",
+    "QuoteMarks": "Single",
     "EnforceOnFormat": false,
     "AlignClosingBraceWithProperties": false,
-    "KeepSingleLineBlocks": true,
+    "KeepSingleLineBlocks": false,
     "Spaces": {
       "AfterColon": true,
       "BeforeOpeningBrace": true
     },
     "HexColors": {
-      "ConvertHexColorsToLowerCase": false,
-      "ConvertHexColorsToUpperCase": true,
+      "ConvertHexColorsToLowerCase": true,
+      "ConvertHexColorsToUpperCase": false,
       "ConvertHexColorsFormatToLongFormat": true,
       "ConvertHexColorsFormatToShortFormat": false
     }

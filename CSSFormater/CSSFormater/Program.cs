@@ -92,7 +92,7 @@ namespace CSSFormater
                             {
                                 var projectPath = arguments[i + 2];
                                 HandleProjectVerification(projectPath, true);
-                                PrintSuccessVerifiactionMesssage();
+                                PrintSuccessVerifiactionMesssage(true);
                             }
                             else
                             {
@@ -106,7 +106,7 @@ namespace CSSFormater
                             {
                                 var directoryPath = arguments[i + 2];
                                 HandleDirectoryVerification(directoryPath, true);
-                                PrintSuccessVerifiactionMesssage();
+                                PrintSuccessVerifiactionMesssage(true);
                                 return;
                             }
                             else
@@ -121,7 +121,7 @@ namespace CSSFormater
                             {
                                 var filePath = arguments[i + 2];
                                 HandleFileVerification(filePath, true);
-                                PrintSuccessVerifiactionMesssage();
+                                PrintSuccessVerifiactionMesssage(true);
                             }
                             else
                             {
@@ -150,9 +150,13 @@ namespace CSSFormater
 
         }
 
-        private static void PrintSuccessVerifiactionMesssage()
+        private static void PrintSuccessVerifiactionMesssage(bool isFormated = false)
         {
             Console.WriteLine("Verification completed, all verification errors has been written to file error.log in project folder");
+            if(isFormated)
+            {
+                Console.WriteLine("Files modified to coe style seted in configurations.");
+            }
         }
 
         private static void HandleFileVerification(string filePath, bool shouldFormat = false)
@@ -200,7 +204,25 @@ namespace CSSFormater
                     }
                 }
             }
+
+            if(shouldFormat)
+            {
+                using (StreamWriter streamWriter = File.CreateText("testFormated.css"))
+                {
+                    var formatedTokens = formatVerificationService.GetFormatedTokens();
+                    var test = new FormatVerificationService(configuration, formatedTokens);
+                    test.VerifyTokens();
+                    var temp = test.GetVerificationErrors();
+                    
+                    for(int i = 0; i <formatedTokens.Count; ++i)
+                    {
+                        
+                        streamWriter.Write(formatedTokens[i].TokenValue);
+                    }
+                }
+            }
         }
+
 
         private static void HandleDirectoryVerification(string directoryPath, bool shouldFormat = false)
         {

@@ -24,15 +24,20 @@ namespace CSSFormater.Services
         {
             TabsAndIndentsVerification(shouldFormat);
             BlankLinesValidation(shouldFormat);
-            BracesPlacementValidation( shouldFormat);
             AlignValuesValidation(shouldFormat);
             QuoteMarksValidation(shouldFormat);
             ClosingBracketsValidation(shouldFormat);
             SingleLineBlocksValidation(shouldFormat);
+            BracesPlacementValidation(shouldFormat);
             SpacesValidation(shouldFormat);
             HexColorsValidation(shouldFormat);
 
             verificationErrors = verificationErrors.OrderBy(x => x.ErrorLineNumber).ToList();
+        }
+
+        public List<Token> GetFormatedTokens()
+        {
+            return _tokens;
         }
 
         public List<VerificationError> GetVerificationErrors()
@@ -55,8 +60,7 @@ namespace CSSFormater.Services
             {
                 if (_tokens[i].TokenValue == "{")
                 {
-                    i++;
-                    while (i < _tokens.Count - 2 && _tokens[i + 1].TokenValue != "}")
+                    while (i < _tokens.Count - 2 && _tokens[i + 2].TokenValue != "}")
                     {
                         if (_tokens[i].TokenType == TokenTypes.NewLine)
                         {
@@ -110,7 +114,7 @@ namespace CSSFormater.Services
                                     _tokens[i - 1].TokenType = TokenTypes.WhiteSpace;
 
                                 }
-                                verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is bigger then should be on {currentIndent - indentSize}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
+                                verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber , ErrorMessage = $"Indent is bigger then should be on {currentIndent - indentSize}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                             }
                             else
                             {
@@ -152,28 +156,29 @@ namespace CSSFormater.Services
             var lastIndexOfClosingBracket = _tokens.LastIndexOf(lastClosedBracketToken);
 
             var countOfNextEmptyLines = 0;
-            for (int i = lastIndexOfClosingBracket; i < _tokens.Count - 1; ++i)
+            for (int i = lastIndexOfClosingBracket; i < _tokens.Count; ++i)
             {
                 if (_tokens[i].TokenType == TokenTypes.NewLine)
                     countOfNextEmptyLines++;
             }
-            if (maximumBlankLinesInCode < countOfNextEmptyLines - 1)
+            if (maximumBlankLinesInCode < countOfNextEmptyLines)
             {
                 if (shouldFormat)
                 {
                     var countOfEmptyLinesToDelete = countOfNextEmptyLines - maximumBlankLinesInCode;
-                    _tokens.RemoveRange(lastIndexOfClosingBracket + 1, countOfNextEmptyLines);
+                    _tokens.RemoveRange(lastIndexOfClosingBracket + 1, countOfEmptyLinesToDelete);
                 }
                 verificationErrors.Add(new VerificationError { ErrorLineNumber = lastClosedBracketToken.LineNumber + 1, ErrorMessage = $"You exceeded the limit of extra blank lines to be kept on {countOfNextEmptyLines - maximumBlankLinesInCode}.", ErrorType = VerificationErrorTypes.BlankLinesError });
             }
             var j = 0;
-            for (; j < _tokens.Count - 1; ++j)
+            for (; j < _tokens.Count - 3; ++j)
             {
                 if (_tokens[j].TokenValue == "}" && j != lastIndexOfClosingBracket)
                 {
                     j++;
                     var lineNumber = _tokens[j + 1].LineNumber;
                     var currentBlankLinesCount = 0;
+                    var closedBracketIndex = j;
                     while (_tokens[j].TokenValue != "{" && j < _tokens.Count - 1)
                     {
                         if (_tokens[j].TokenType == TokenTypes.NewLine)
@@ -183,13 +188,14 @@ namespace CSSFormater.Services
                         j++;
                     }
 
-                    if (currentBlankLinesCount - 1 < minimumBlankLinesAroundTopLevelBlocks)
+                    currentBlankLinesCount--;
+                    if (currentBlankLinesCount < minimumBlankLinesAroundTopLevelBlocks)
                     {
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"You ddid not reach the minimum number of blank lines around top level blocks on {minimumBlankLinesAroundTopLevelBlocks - currentBlankLinesCount + 1}.", ErrorType = VerificationErrorTypes.BlankLinesError });
                         if(shouldFormat)
                         {
                             for (int k = 0; k < minimumBlankLinesAroundTopLevelBlocks - currentBlankLinesCount; k++)
-                                _tokens.Insert(j + 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                                _tokens.Insert(closedBracketIndex + 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
                         }
                     }
                 }
@@ -209,7 +215,7 @@ namespace CSSFormater.Services
                         if(shouldFormat)
                         {
                             _tokens.RemoveAt(i - 1);
-                            i--;
+                            _tokens.Insert(i-1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
                         }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber, ErrorMessage = "You should place bracket at the end of line", ErrorType = VerificationErrorTypes.BracesReplacementError });
                     }
@@ -217,7 +223,17 @@ namespace CSSFormater.Services
                     {
                         if(shouldFormat)
                         {
-                            _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                            if (_tokens[i - 1].TokenType == TokenTypes.WhiteSpace)
+                            {
+                                _tokens.RemoveAt(i - 1);
+
+                                _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                            }
+                            else
+                            {
+                                i++;
+                                _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                            }
                         }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "You should place bracket at the next line", ErrorType = VerificationErrorTypes.BracesReplacementError });
                     }
@@ -236,7 +252,7 @@ namespace CSSFormater.Services
                 if (_tokens[i].TokenValue == "{")
                 {
                     i++;
-                    var maxStartIndex = GetMaximalStartIndexOfAttributeValueInBlock(i);
+                    var openBracketIndex = i;
                     while (_tokens[i].TokenValue != "}" && i < _tokens.Count)
                     {
                         if (_tokens[i].TokenValue == ":")
@@ -259,7 +275,7 @@ namespace CSSFormater.Services
                                     {
                                         if(shouldFormat)
                                         {
-                                            _tokens[i + 1].TokenValue.Substring(1);
+                                            _tokens[i+1].TokenValue =  _tokens[i + 1].TokenValue.Substring(_tokens[i+1].TokenValue.Length-1);
                                         }
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                     }
@@ -269,9 +285,14 @@ namespace CSSFormater.Services
 
                             if (alignValuesType == AlignValuesTypes.OnValue)
                             {
+                                var operatorIndex = i;
+                                var maxStartIndex = GetMaximalStartIndexOfAttributeValueInBlock(openBracketIndex);
+
+                                
+
                                 if (_tokens[i + 1].TokenType != TokenTypes.WhiteSpace)
                                 {
-                                    if (_tokens[i + 1].Position != maxStartIndex)
+                                    if (GetIdentifierPositions(operatorIndex) != maxStartIndex)
                                     {
                                         var offset = maxStartIndex - _tokens[i + 1].Position;
 
@@ -279,41 +300,73 @@ namespace CSSFormater.Services
 
                                         if(shouldFormat)
                                         {
-                                            _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset) });
+                                            _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset-3) });
                                         }
 
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = message, ErrorType = VerificationErrorTypes.AlignValuesError });
 
                                     }
+                                    else if (shouldFormat)
+                                    {
+                                        _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                    }
+                                    verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be a white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
+
                                 }
                                 else
                                 {
-                                    if (_tokens[i + 2].Position != maxStartIndex)
+                                    if (GetIdentifierPositions(operatorIndex) != maxStartIndex)
                                     {
                                         var offset = maxStartIndex - _tokens[i + 2].Position;
                                         var message = $"Between ':' and attribute value must be more on {offset} white spaces!";
                                         if(shouldFormat)
                                         {
-                                            _tokens.Insert(i + 2, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset) });
+                                            _tokens.Insert(i + 2, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset-3) });
                                         }
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = message, ErrorType = VerificationErrorTypes.AlignValuesError });
 
                                     }
                                 }
+
+                                if (_tokens[i - 1].TokenType == TokenTypes.WhiteSpace)
+                                {
+
+                                    _tokens[i+1].TokenValue+=_tokens[i-1].TokenValue;
+
+                                    _tokens.RemoveAt(i - 1);
+                                }
                             }
+
                             if (alignValuesType == AlignValuesTypes.OnColon)
                             {
-                                int identifierPosition = 0;
-                                var identifireIndex = 0;
+                                var operatorIndex = i;
+                                int identifierPosition = GetIdentifierPositions(i);
+                                var maxStartIndex = GetMaximalStartIndexOfAttributeValueInBlock(openBracketIndex);
+
+                                if (identifierPosition < maxStartIndex)
+                                {
+                                    var offset = maxStartIndex - identifierPosition;
+                                    if (_tokens[operatorIndex + 1].TokenType != TokenTypes.WhiteSpace && _configuration.Other.Spaces.AfterColon)
+                                        offset--;
+                                    var message = $"Between attribute and ':' must be more on {offset} white spaces!";
+
+                                    if (shouldFormat)
+                                    {
+                                        _tokens.Insert(i, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset ) });
+                                        i++;
+                                    }
+                                    verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = message, ErrorType = VerificationErrorTypes.AlignValuesError });
+                                }
+
                                 if (_tokens[i + 1].TokenType != TokenTypes.WhiteSpace && _configuration.Other.Spaces.AfterColon)
                                 {
+                                    verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be a white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
+                                   
                                     if (shouldFormat)
                                     {
                                         _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                        
                                     }
-                                    verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be a white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
-                                    identifierPosition = _tokens[i + 1].Position;
-                                    identifireIndex = i + 1;
                                 }
                                 else
                                 {
@@ -321,37 +374,27 @@ namespace CSSFormater.Services
                                     {
                                         if (shouldFormat)
                                         {
-                                            _tokens[i + 1].TokenValue.Substring(1);
+                                            _tokens[i - 1].TokenValue += new string(' ', _tokens[i + 1].TokenValue.Length - 1);
+                                            _tokens[i+1].TokenValue = _tokens[i + 1].TokenValue.Substring(_tokens[i+1].TokenValue.Length-1);
+
                                         }
 
                                         verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be only one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                     }
-                                    identifierPosition = _tokens[i + 2].Position;
-                                    identifireIndex = i + 2;
+
+                                   
                                 }
 
                                 if (_tokens[i - 1].TokenType != TokenTypes.WhiteSpace)
                                 {
                                     if (shouldFormat)
                                     {
-                                        _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
                                         i++;
+                                        _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                       
                                     }
                                     verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = "Between ':' and attribute value must be at least one white space!", ErrorType = VerificationErrorTypes.AlignValuesError });
                                 }
-
-                                if (identifierPosition != maxStartIndex)
-                                {
-                                    var offset = maxStartIndex - identifierPosition;
-                                    var message = $"Between attribute and ':' must be more on {offset} white spaces!";
-
-                                    if (shouldFormat)
-                                    {
-                                        _tokens.Insert(identifireIndex - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', offset) });
-                                    }
-                                    verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber + 1, ErrorMessage = message, ErrorType = VerificationErrorTypes.AlignValuesError });
-                                }
-
                             }
                         }
                         i++;
@@ -362,26 +405,25 @@ namespace CSSFormater.Services
 
         private void QuoteMarksValidation(bool shouldFormat = false)
         {
-            var stringTokens = _tokens.Where(token => token.TokenType == TokenTypes.String).ToList();
             var quotesMarksType = _configuration.Other.QuoteMarks;
-            for (int i = 0; i < stringTokens.Count; ++i)
+            for (int i = 0; i < _tokens.Count; ++i)
             {
-                if (quotesMarksType == QuoteMarksTypes.Single && (!stringTokens[i].TokenValue.StartsWith('\'') && !stringTokens[i].TokenValue.EndsWith('\'')))
+                if (quotesMarksType == QuoteMarksTypes.Single && !(_tokens[i].TokenValue.StartsWith('\'') && _tokens[i].TokenValue.EndsWith('\'')))
                 {
                     if(shouldFormat)
                     {
-                        _tokens[i].TokenValue.Replace('\"', '\'');
+                        _tokens[i].TokenValue = _tokens[i].TokenValue.Replace('\"', '\'');
                     }
-                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in single quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
+                    verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in single quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
                 }
 
-                if (quotesMarksType == QuoteMarksTypes.Double && (!stringTokens[i].TokenValue.StartsWith('\"') && !stringTokens[i].TokenValue.EndsWith('\"')))
+                if (quotesMarksType == QuoteMarksTypes.Double && !(_tokens[i].TokenValue.StartsWith('\"') && _tokens[i].TokenValue.EndsWith('\"')))
                 {
                     if (shouldFormat)
                     {
-                        _tokens[i].TokenValue.Replace('\'', '\"');
+                        _tokens[i].TokenValue = _tokens[i].TokenValue.Replace('\'', '\"');
                     }
-                    verificationErrors.Add(new VerificationError { ErrorLineNumber = stringTokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in double quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
+                    verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "String value should be wrapped in double quotes", ErrorType = VerificationErrorTypes.QuoteMarksError });
                 }
             }
         }
@@ -400,7 +442,8 @@ namespace CSSFormater.Services
                         {
                             if(shouldFormat)
                             {
-                                _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue =  new string(' ', _configuration.TabsAndIndents.Indent) });
+                                _tokens.Insert(i, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue =  new string(' ', _configuration.TabsAndIndents.Indent) });
+                                i++;
                             }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "You should insert indent before closing bracket", ErrorType = VerificationErrorTypes.ClosingBraceAligmentError });
                         }
@@ -439,6 +482,7 @@ namespace CSSFormater.Services
                             attributesCount++;
                         i++;
                     }
+                    
                     if (attributesCount == 1)
                     {
                         if (_tokens[openBracketIndex + 1].TokenType != TokenTypes.NewLine && !keepSingleLineBlocks)
@@ -446,6 +490,7 @@ namespace CSSFormater.Services
                             if(shouldFormat)
                             {
                                 _tokens.Insert(openBracketIndex + 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                                _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
                             }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should not keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
                         }
@@ -453,7 +498,13 @@ namespace CSSFormater.Services
                         {
                             if(shouldFormat)
                             {
-                                _tokens.RemoveAt(i - 1);
+                                _tokens.RemoveAt(openBracketIndex + 1);
+                                _tokens.RemoveAt(openBracketIndex + 1);
+                                _tokens.Insert(openBracketIndex + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                i++;
+                                _tokens.RemoveAt(i - 3);
+                                _tokens.Insert(i - 3, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+
                                 i--;
                             }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = openBracketLineNumber, ErrorMessage = "You should keep single line block", ErrorType = VerificationErrorTypes.SingleLineBlockError });
@@ -483,6 +534,7 @@ namespace CSSFormater.Services
                         if(shouldFormat)
                         {
                             _tokens.Insert(i + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                            i--;
                         }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "You should place space after colon", ErrorType = VerificationErrorTypes.SpaceAfterColonError });
                     }
@@ -497,7 +549,8 @@ namespace CSSFormater.Services
                         {
                             if(shouldFormat)
                             {
-                                _tokens.Insert(i - 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                _tokens.Insert(i, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
+                                i--;
                             }
                             verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "You should place space before openning space", ErrorType = VerificationErrorTypes.SpaceBeforeOpeningBracketError });
                         }
@@ -537,7 +590,7 @@ namespace CSSFormater.Services
                     {
                         if(shouldFormat)
                         {
-                            _tokens[i].TokenValue.ToLower();
+                            _tokens[i + 1].TokenValue = _tokens[i+1].TokenValue.ToLower();
                         }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in lower case", ErrorType = VerificationErrorTypes.HexColorCaseError });
                     }
@@ -545,7 +598,7 @@ namespace CSSFormater.Services
                     {
                         if(shouldFormat)
                         {
-                            _tokens[i].TokenValue.ToUpper();
+                            _tokens[i + 1].TokenValue = _tokens[i+1].TokenValue.ToUpper();
                         }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = _tokens[i].LineNumber + 1, ErrorMessage = "Hex collor should be in upper case", ErrorType = VerificationErrorTypes.HexColorCaseError });
                     }
@@ -562,24 +615,30 @@ namespace CSSFormater.Services
 
                 if (_tokens[i].TokenValue == ":")
                 {
-                    var tabsCount = GetCountOfTabsInLineBeforeAttributeValue(_tokens[i]);
-                    var tabsOffset = tabsCount == 0 ? (tabsCount * _configuration.TabsAndIndents.TabSize - 1) : 0;
-                    if (_tokens[i + 1].TokenType == TokenTypes.WhiteSpace)
-                    {
-                        if (_tokens[i + 2].Position - tabsOffset > maximumIndex)
-                            maximumIndex = _tokens[i + 2].Position - tabsOffset;
-                    }
-                    else
-                    {
-                        if (_tokens[i + 1].Position - tabsOffset > maximumIndex)
-                            maximumIndex = _tokens[i + 1].Position - tabsOffset;
-                    }
+                    var identifierPosition = GetIdentifierPositions(i);
+                    if (maximumIndex < identifierPosition)
+                        maximumIndex = identifierPosition;
                 }
 
                 i++;
             }
 
             return maximumIndex;
+        }
+
+        private int GetIdentifierPositions(int operatorIndex)
+        {
+            var tabsCount = GetCountOfTabsInLineBeforeAttributeValue(_tokens[operatorIndex]);
+            var tabsOffset = tabsCount != 0 ? (tabsCount * _configuration.TabsAndIndents.TabSize - 1) : 0;
+
+            if (_tokens[operatorIndex+1].TokenType!=TokenTypes.WhiteSpace)
+            {
+                return _tokens[operatorIndex + 1].Position + tabsOffset;
+            }
+            else
+            {
+                return _tokens[operatorIndex + 2].Position + tabsOffset;
+            }
         }
         private int GetCountOfTabsInLineBeforeAttributeValue(Token token)
         {
