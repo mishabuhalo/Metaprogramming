@@ -203,9 +203,22 @@ namespace CSSFormater.Services
                 if (fileTokens[i].TokenValue == "{")
                 {
                     if (fileTokens[i - 1].TokenType == TokenTypes.NewLine && bracesPlacementType != BracesPlacementTypes.NextLine)
+                    {
+                        if(shouldFormat)
+                        {
+                            fileTokens.RemoveAt(i - 1);
+                            i--;
+                        }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber, ErrorMessage = "You should place bracket at the end of line", ErrorType = VerificationErrorTypes.BracesReplacementError });
+                    }
                     if (fileTokens[i - 1].TokenType != TokenTypes.NewLine && bracesPlacementType != BracesPlacementTypes.EndOfLine)
+                    {
+                        if(shouldFormat)
+                        {
+                            fileTokens.Insert(i - 1, new Token { TokenType = TokenTypes.NewLine, TokenValue = "\n" });
+                        }
                         verificationErrors.Add(new VerificationError { ErrorLineNumber = fileTokens[i].LineNumber + 1, ErrorMessage = "You should place bracket at the next line", ErrorType = VerificationErrorTypes.BracesReplacementError });
+                    }
                 }
             }
         }
