@@ -120,8 +120,16 @@ namespace CSSFormater.Services
                             {
                                 if (shouldFormat)
                                 {
-                                    _tokens[i - 1].TokenValue = new string(' ', indentSize);
-                                    _tokens[i - 1].TokenType = TokenTypes.WhiteSpace;
+                                    if (_tokens[i - 1].TokenType == TokenTypes.NewLine)
+                                    {
+                                        _tokens.Insert(i, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = new string(' ', indentSize) });
+                                        i++;
+                                    }
+                                    else
+                                    {
+                                        _tokens[i - 1].TokenValue = new string(' ', indentSize);
+                                        _tokens[i - 1].TokenType = TokenTypes.WhiteSpace;
+                                    }
                                 }
                                 verificationErrors.Add(new VerificationError { ErrorLineNumber = lineNumber, ErrorMessage = $"Indent is less then should be on {indentSize - currentIndent}.", ErrorType = VerificationErrorTypes.TabsAndIndentsError });
                             }
