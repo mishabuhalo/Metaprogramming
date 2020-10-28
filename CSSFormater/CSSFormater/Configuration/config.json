@@ -18,7 +18,7 @@
     "QuoteMarks": "Single",
     "EnforceOnFormat": false,
     "AlignClosingBraceWithProperties": false,
-    "KeepSingleLineBlocks": false,
+    "KeepSingleLineBlocks": true,
     "Spaces": {
       "AfterColon": true,
       "BeforeOpeningBrace": true

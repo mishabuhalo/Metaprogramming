@@ -507,7 +507,12 @@ namespace CSSFormater.Services
                             if(shouldFormat)
                             {
                                 _tokens.RemoveAt(openBracketIndex + 1);
-                                _tokens.RemoveAt(openBracketIndex + 1);
+                                i++;
+                                if(_tokens[openBracketIndex+1].TokenType==TokenTypes.WhiteSpace|| _tokens[openBracketIndex+1].TokenType==TokenTypes.Tab)
+                                {
+                                    _tokens.RemoveAt(openBracketIndex + 1);
+                                    i--;
+                                }
                                 _tokens.Insert(openBracketIndex + 1, new Token { TokenType = TokenTypes.WhiteSpace, TokenValue = " " });
                                 i++;
                                 _tokens.RemoveAt(i - 3);
