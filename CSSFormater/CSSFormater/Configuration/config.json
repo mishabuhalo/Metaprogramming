@@ -1,0 +1,34 @@
+{
+  "TabsAndIndents": {
+    "UseTabCharacter": true,
+    "SmartTabs": true,
+    "TabSize": 4,
+    "Indent": 4,
+    "ContinuationIndent": 8,
+    "KeepIndentsOnEmtyLines": false
+  },
+  "BlankLines": {
+    "MaximumBlankLinesInCode": 2,
+    "MinimumBlankLinesAroundTopLevelBlock": 3,
+    "MinimumBlankLinesAroundNestedSelector": 1
+  },
+  "Other": {
+    "BracesPlacement": "End of line",
+    "AlignValues": "On colon",
+    "QuoteMarks": "Single",
+    "EnforceOnFormat": false,
+    "AlignClosingBraceWithProperties": true,
+    "KeepSingleLineBlocks": false,
+    "Spaces": {
+      "AfterColon": true,
+      "BeforeOpeningBrace": true
+    },
+    "HexColors": {
+      "ConvertHexColorsToLowerCase": true,
+      "ConvertHexColorsToUpperCase": false,
+      "ConvertHexColorsFormatToLongFormat": true,
+      "ConvertHexColorsFormatToShortFormat": false,
+      "ConvertHexColorsToStringValues": true
+    }
+  }
+}

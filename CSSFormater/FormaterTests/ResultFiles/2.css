@@ -1,0 +1,11 @@
+body {
+	background : black;
+	color      : #80C0C0
+    }
+
+
+
+p:first-line {
+	margin-left : 25px
+    }
+
