@@ -1,0 +1,34 @@
+body {
+    background : black;
+    color      : #80c0c0
+}
+
+
+
+a:link {
+ color : #f88 
+}
+
+
+
+a:visited {
+ color : #ff0000 
+}
+
+
+
+a:active {
+    color : #a05050
+}
+
+
+
+a.case1:link {
+    background : green
+}
+
+
+
+p:first-line {
+    margin-left : 25px
+}
