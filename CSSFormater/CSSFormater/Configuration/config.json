@@ -27,7 +27,8 @@
       "ConvertHexColorsToLowerCase": true,
       "ConvertHexColorsToUpperCase": false,
       "ConvertHexColorsFormatToLongFormat": true,
-      "ConvertHexColorsFormatToShortFormat": false
+      "ConvertHexColorsFormatToShortFormat": false,
+      "ConvertHexColorsToStringValues":  true
     }
   }
 }
