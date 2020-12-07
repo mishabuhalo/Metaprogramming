@@ -1,8 +1,10 @@
 body {
-background : black;
-color      : #80c0c0
-}
+    background : black;
+    color      : #80C0C0;
+    }
+
+
 
 p:first-line {
-margin-left : 25px
-}
+    margin-left : 25px
+    }

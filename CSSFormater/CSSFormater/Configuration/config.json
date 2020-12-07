@@ -9,16 +9,16 @@
   },
   "BlankLines": {
     "MaximumBlankLinesInCode": 2,
-    "MinimumBlankLinesAroundTopLevelBlock": 1,
-    "MinimumBlankLinesAroundNestedSelector": 5
+    "MinimumBlankLinesAroundTopLevelBlock": 3,
+    "MinimumBlankLinesAroundNestedSelector": 1
   },
   "Other": {
     "BracesPlacement": "End of line",
     "AlignValues": "On colon",
     "QuoteMarks": "Single",
     "EnforceOnFormat": false,
-    "AlignClosingBraceWithProperties": false,
-    "KeepSingleLineBlocks": true,
+    "AlignClosingBraceWithProperties": true,
+    "KeepSingleLineBlocks": false,
     "Spaces": {
       "AfterColon": true,
       "BeforeOpeningBrace": true
@@ -28,7 +28,7 @@
       "ConvertHexColorsToUpperCase": false,
       "ConvertHexColorsFormatToLongFormat": true,
       "ConvertHexColorsFormatToShortFormat": false,
-      "ConvertHexColorsToStringValues":  true
+      "ConvertHexColorsToStringValues": true
     }
   }
 }

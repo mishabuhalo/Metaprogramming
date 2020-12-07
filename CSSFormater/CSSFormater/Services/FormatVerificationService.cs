@@ -60,7 +60,7 @@ namespace CSSFormater.Services
                 {
                     string hexColor = _tokens[i].TokenValue;
                     Token currentToken = _tokens[i+1];
-                    while(currentToken.TokenType!=TokenTypes.Operator && currentToken.TokenType!=TokenTypes.WhiteSpace)
+                    while(currentToken.TokenType!=TokenTypes.Operator && currentToken.TokenType!=TokenTypes.WhiteSpace && currentToken.TokenType != TokenTypes.NewLine)
                     {
                         hexColor += currentToken.TokenValue;
                         _tokens.RemoveAt(i + 1);
