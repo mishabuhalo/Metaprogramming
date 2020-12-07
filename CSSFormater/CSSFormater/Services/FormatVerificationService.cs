@@ -40,7 +40,7 @@ namespace CSSFormater.Services
             verificationErrors = verificationErrors.OrderBy(x => x.ErrorLineNumber).ToList();
         }
 
-        private void HexColorsToString()
+        public void HexColorsToString()
         {
             bool shouldFormatHexColorsToString = _configuration.Other.HexColors.ConvertHexColorsToStringValues;
             bool isBracketOpened = false;
@@ -110,7 +110,7 @@ namespace CSSFormater.Services
             return verificationErrors;
         }
 
-        private void TabsAndIndentsVerification(bool shouldFormat = false)
+        public void TabsAndIndentsVerification(bool shouldFormat = false)
         {
             int i = 0;
             var useTabCharacter = _configuration.TabsAndIndents.UseTabCharacter;
@@ -219,7 +219,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void BlankLinesValidation(bool shouldFormat = false)
+        public void BlankLinesValidation(bool shouldFormat = false)
         {
             var maximumBlankLinesInCode = _configuration.BlankLines.MaximumBlankLinesInCode;
             var minimumBlankLinesAroundTopLevelBlocks = _configuration.BlankLines.MinimumBlankLinesAroundTopLevelBlock;
@@ -275,7 +275,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void BracesPlacementValidation(bool shouldFormat = false)
+        public void BracesPlacementValidation(bool shouldFormat = false)
         {
             var bracesPlacementType = _configuration.Other.BracesPlacement;
 
@@ -314,7 +314,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void AlignValuesValidation(bool shouldFormat = false)
+        public void AlignValuesValidation(bool shouldFormat = false)
         {
             var alignValuesType = _configuration.Other.AlignValues;
 
@@ -476,7 +476,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void QuoteMarksValidation(bool shouldFormat = false)
+        public void QuoteMarksValidation(bool shouldFormat = false)
         {
             var quotesMarksType = _configuration.Other.QuoteMarks;
             for (int i = 0; i < _tokens.Count; ++i)
@@ -501,7 +501,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void ClosingBracketsValidation(bool shouldFormat = false)
+        public void ClosingBracketsValidation(bool shouldFormat = false)
         {
             var alignClosingBracketsWithProperies = _configuration.Other.AlignClosingBraceWithProperties;
 
@@ -537,7 +537,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void SingleLineBlocksValidation(bool shouldFormat = false)
+        public void SingleLineBlocksValidation(bool shouldFormat = false)
         {
             var keepSingleLineBlocks = _configuration.Other.KeepSingleLineBlocks;
 
@@ -592,7 +592,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void SpacesValidation(bool shouldFormat = false)
+        public void SpacesValidation(bool shouldFormat = false)
         {
             var spacesAfterColon = _configuration.Other.Spaces.AfterColon;
             var spaceBeforeOpeningBracket = _configuration.Other.Spaces.BeforeOpeningBrace;
@@ -638,7 +638,7 @@ namespace CSSFormater.Services
             }
         }
 
-        private void HexColorsValidation(bool shouldFormat = false)
+        public void HexColorsValidation(bool shouldFormat = false)
         {
             var hexColorLowerCase = _configuration.Other.HexColors.ConvertHexColorsToLowerCase;
             var hexColorsLongFormat = _configuration.Other.HexColors.ConvertHexColorsFormatToLongFormat;
