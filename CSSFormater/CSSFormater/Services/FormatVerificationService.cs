@@ -3,7 +3,9 @@ using CSSFormater.FormaterConfigurationModels;
 using CSSFormater.Models;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace CSSFormater.Services
@@ -13,12 +15,14 @@ namespace CSSFormater.Services
         private List<VerificationError> verificationErrors;
         private Configuration _configuration;
         private List<Token> _tokens;
+        private List<PropertyInfo> _colorProperties;
 
         public FormatVerificationService(Configuration configuration, List<Token> tokens)
         {
             _configuration = configuration;
             verificationErrors = new List<VerificationError>();
             _tokens = tokens;
+            _colorProperties = new List<PropertyInfo>();
         }
         public void VerifyTokens(bool shouldFormat = false)
         {
@@ -31,8 +35,69 @@ namespace CSSFormater.Services
             SpacesValidation(shouldFormat);
             HexColorsValidation(shouldFormat);
             TabsAndIndentsVerification(shouldFormat);
+            HexColorsToString();
 
             verificationErrors = verificationErrors.OrderBy(x => x.ErrorLineNumber).ToList();
+        }
+
+        private void HexColorsToString()
+        {
+            bool shouldFormatHexColorsToString = _configuration.Other.HexColors.ConvertHexColorsToStringValues;
+            bool isBracketOpened = false;
+
+            if (!shouldFormatHexColorsToString)
+                return;
+
+            for (int i = 0; i < _tokens.Count - 1; ++i)
+            {
+                if (_tokens[i].TokenValue == "{")
+                    isBracketOpened = true;
+
+                else if (_tokens[i].TokenValue == "}")
+                    isBracketOpened = false;
+
+                if (_tokens[i].TokenValue == "#" && isBracketOpened)
+                {
+                    string hexColor = _tokens[i].TokenValue;
+                    Token currentToken = _tokens[i+1];
+                    while(currentToken.TokenType!=TokenTypes.Operator && currentToken.TokenType!=TokenTypes.WhiteSpace)
+                    {
+                        hexColor += currentToken.TokenValue;
+                        _tokens.RemoveAt(i + 1);
+                        currentToken = _tokens[i + 1];
+                    }
+                    _tokens[i].TokenValue = TryGetHexColorName(hexColor);
+                }
+            }
+        }
+
+        private string TryGetHexColorName(string hexColor)
+        {
+            Color color = ColorTranslator.FromHtml(hexColor);
+
+            if(_colorProperties.Count == 0)
+            {
+                InitializeColorProperties();
+            }
+
+            foreach (var colorProperty in _colorProperties)
+            {
+                var colorPropertyValue = (Color)colorProperty.GetValue(null, null);
+                if (colorPropertyValue.R == color.R
+                       && colorPropertyValue.G == color.G
+                       && colorPropertyValue.B == color.B)
+                {
+                    return colorPropertyValue.Name;
+                }
+            }
+            return ColorTranslator.ToHtml(color);
+        }
+
+        private void InitializeColorProperties()
+        {
+            _colorProperties = typeof(Color)
+                .GetProperties(BindingFlags.Public | BindingFlags.Static)
+                .Where(p => p.PropertyType == typeof(Color)).ToList();
         }
 
         public List<Token> GetFormatedTokens()
